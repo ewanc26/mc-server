@@ -25,6 +25,10 @@ services:
         GreenZero26
       SPIGET_RESOURCES: |-
         1997
+        19254
+        125742
+        66959
+        27448
       PLUGINS: |-
         https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar
       PLAYER_IDLE_TIMEOUT: "5"
