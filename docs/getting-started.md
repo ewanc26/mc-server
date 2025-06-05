@@ -33,13 +33,10 @@ services:
         GreenZero26
       SPIGET_RESOURCES: |-
         1997 # ProtocolLib
-        125742 # PlayerHealthDisplay
-        66959 # ViaVersionStatus
-        27448 # ViaBackwards
-        19254 # ViaVersion
-        113050 # minefetch
       PLUGINS: |-
         https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar
+        https://cdn.modrinth.com/data/7cMAqMND/versions/EwMrWdPh/Backuper-3.4.1.jar
+        https://hangarcdn.papermc.io/plugins/alex3025/Headstones/versions/1.0.0/PAPER/Headstones-1.0.0.jar
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
     volumes:
       - "./data/minecraft:/data"
