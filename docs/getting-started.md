@@ -32,12 +32,11 @@ services:
       OPS: |-
         GreenZero26
       SPIGET_RESOURCES: |-
-        1997
-        125742
-        94532
-        82861
-        19254
-        27448
+        1997 # ProtocolLib
+        125742 # PlayerHealthDisplay
+        66959 # ViaVersionStatus
+        27448 # ViaBackwards
+        19254 # ViaVersion
       PLUGINS: |-
         https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
