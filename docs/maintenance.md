@@ -11,7 +11,7 @@ docker compose up -d
 ## Plugin Management
 
 * Update `SPIGET_RESOURCES` or `PLUGINS` in `compose.yml`
-* Or place `.jar` files into `./data/plugins` and:
+* Or place `.jar` files into `./data/minecraft/plugins` and:
 
 ```bash
 docker compose restart mc

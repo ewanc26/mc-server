@@ -5,5 +5,5 @@
 * **Dockerised:** Easy setup and consistent environment across different systems.
 * **Automatic Plugin Management:** Includes pre-configured plugins (TCPShield RealIP, and others via Spigot Resources).
 * **Configurable:** Easily modify server settings via `compose.yml`.
-* **Persistent Data:** Server worlds and configurations are stored persistently in the `./data` directory.
+* Persistent Data: Server worlds and configurations are stored persistently in the `./data/minecraft` directory.
 * **Dynamic DNS Integration (DuckDNS):** Companion script for automatic IP address updates, allowing players to connect via a consistent domain name.

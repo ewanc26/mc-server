@@ -42,7 +42,7 @@ services:
         https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
     volumes:
-      - "./data:/data"
+      - "./data/minecraft:/data"
 ```
 
 #### Initial Server Startup
