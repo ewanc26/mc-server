@@ -10,7 +10,7 @@ docker compose up -d
 
 ## Plugin Management
 
-* Update `SPIGET_RESOURCES` (for SpigotMC resource IDs like ProtocolLib (ID 1997), PlayerHealthDisplay (ID 125742), ViaVersionStatus (ID 66959), ViaBackwards (ID 27448), ViaVersion (ID 19254)) or `PLUGINS` in `compose.yml`
+* Update `SPIGET_RESOURCES` (for SpigotMC resource IDs like ProtocolLib (ID 1997), PlayerHealthDisplay (ID 125742), ViaVersionStatus (ID 66959), ViaBackwards (ID 27448), ViaVersion (ID 19254), minefetch (ID 113050)) or `PLUGINS` in `compose.yml`
 * Or place `.jar` files into `./data/minecraft/plugins` and:
 
 ```bash

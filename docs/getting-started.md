@@ -37,6 +37,7 @@ services:
         66959 # ViaVersionStatus
         27448 # ViaBackwards
         19254 # ViaVersion
+        113050 # minefetch
       PLUGINS: |-
         https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
