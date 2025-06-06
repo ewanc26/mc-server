@@ -1,0 +1,28 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "AIKAR",
+        "caffeinate",
+        "DPMS",
+        "duckdns",
+        "Ewan's",
+        "itzg",
+        "jzelinskie",
+        "mcserver",
+        "noblank",
+        "NPCS",
+        "setupmc",
+        "SPIGET",
+        "XSET"
+    ],
+    "ignorePaths": [
+        "node_modules",
+        "build",
+        "dist",
+        "package-lock.json",
+        "yarn.lock",
+        ".git",
+        "docs"
+    ]
+}
