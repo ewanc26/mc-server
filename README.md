@@ -19,7 +19,7 @@ This setup is primarily intended for personal use or small groups of friends.
 
 ## How to Use the Scripts
 
-To get started with the server setup, navigate to the `server` directory and run the master setup script:
+To get started with the server setup, run the master setup script:
 
 ```bash
 ./scripts/setup_master.sh
