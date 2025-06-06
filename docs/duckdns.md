@@ -2,7 +2,7 @@
 
 ## What is DuckDNS?
 
-DuckDNS is a free dynamic DNS service. The script `setup_duckdns.sh` automates updating your IP every hour.
+DuckDNS is a free dynamic DNS service. The script `scripts/setup_duckdns.sh` automates updating your IP every hour.
 
 ### Prerequisites
 
@@ -24,8 +24,8 @@ sudo apt update && sudo apt install curl cron -y
 
 ```bash
 cd mc-server
-chmod +x setup_duckdns.sh
-./setup_duckdns.sh
+chmod +x scripts/setup_duckdns.sh
+./scripts/setup_duckdns.sh
 ```
 
 Follow prompts for domain and token.
