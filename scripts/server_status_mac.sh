@@ -62,10 +62,15 @@ case "$1" in
     status)
         mc_status
         ;;
+    restart)
+        mc_stop
+        mc_start
+        ;;
     *)
-        echo "Usage: $0 {start|stop|status}"
+        echo "Usage: $0 {start|stop|status|restart}"
         echo "  start  - Start server and enable caffeine"
         echo "  stop   - Stop server and disable caffeine"
         echo "  status - Show server and caffeine status"
+        echo "  restart - Restart server and caffeine"
         ;;
 esac

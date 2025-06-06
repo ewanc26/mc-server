@@ -159,14 +159,19 @@ case "$1" in
     status)
         mc_status
         ;;
+    restart)
+        mc_stop
+        mc_start
+        ;;
     cleanup)
         mc_cleanup
         ;;
     *)
-        echo "Usage: $0 {start|stop|status|cleanup}"
+        echo "Usage: $0 {start|stop|status|restart|cleanup}"
         echo "  start   - Start server and prevent system sleep"
         echo "  stop    - Stop server and restore sleep settings"
         echo "  status  - Show server and sleep prevention status"
+        echo "  restart - Restart server and prevent system sleep"
         echo "  cleanup - Clean up any orphaned sleep prevention processes"
         echo ""
         echo "Current server directory: $SERVER_DIR"
