@@ -12,6 +12,7 @@ services:
       TYPE: "PAPER"
       VERSION: "1.21.1"
       MEMORY: "4096M"
+      INIT_MEMORY: "1024M"
       MAX_PLAYERS: "10"
       MOTD: "Ewan's Minecraft Server"
       USE_AIKAR_FLAGS: "true"
