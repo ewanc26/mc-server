@@ -17,33 +17,57 @@ This setup is primarily intended for personal use or small groups of friends.
 * [Contributing](./docs/contributing.md)
 * [Contact](./docs/contact.md)
 
-## How to Use the Scripts
+### How to Use the Scripts
 
-To get started with the server setup, run the master setup script:
+This project includes several utility scripts located in the `scripts/` directory. These scripts are designed to help you manage your Minecraft server.
 
-```bash
-./scripts/setup_master.sh
-```
+1. **`setup_master.sh`**: This is the main setup script. Run it first to ensure all prerequisites are met and to configure your server. This script will also offer to set up a convenient alias for the server status script.
 
-This script will guide you through the initial setup, including Docker checks, DuckDNS configuration (optional), and starting the Minecraft server.
+    ```bash
+    ./scripts/setup_master.sh
+    ```
 
-### Managing the Minecraft Server
+2. **`server_status_mac.sh` / `server_status_linux.sh`**: These scripts are OS-specific and allow you to start, stop, and check the status of your Minecraft server. If you allowed `setup_master.sh` to create the alias, you can use `mcserver` followed by the command.
 
-Once the server is set up, you can manage its status using the OS-specific scripts located in the `scripts/` directory:
+    * **Using the `mcserver` alias (recommended after running `setup_master.sh`):
 
-**For macOS:**
+        * **Start the server:**
 
-```bash
-./scripts/server_status_mac.sh start   # To start the server
-./scripts/server_status_mac.sh stop    # To stop the server
-./scripts/server_status_mac.sh status  # To check server status
-```
+            ```bash
+            mcserver start
+            ```
 
-**For Linux:**
+        * **Stop the server:**
 
-```bash
-./scripts/server_status_linux.sh start   # To start the server
-./scripts/server_status_linux.sh stop    # To stop the server
-./scripts/server_status_linux.sh status  # To check server status
-./scripts/server_status_linux.sh cleanup # To clean up orphaned sleep prevention processes
-```
+            ```bash
+            mcserver stop
+            ```
+
+        * **Check server status:**
+
+            ```bash
+            mcserver status
+            ```
+
+    * **Directly running the scripts (if alias is not set up or preferred):
+
+        * **Start the server:**
+
+            ```bash
+            ./scripts/server_status_mac.sh start   # For macOS
+            ./scripts/server_status_linux.sh start # For Linux
+            ```
+
+        * **Stop the server:**
+
+            ```bash
+            ./scripts/server_status_mac.sh stop    # For macOS
+            ./scripts/server_status_linux.sh stop  # For Linux
+            ```
+
+        * **Check server status:**
+
+            ```bash
+             ./scripts/server_status_mac.sh status   # For macOS
+             ./scripts/server_status_linux.sh status # For Linux
+             ```
