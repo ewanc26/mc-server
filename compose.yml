@@ -42,8 +42,6 @@ services:
       PLAYER_IDLE_TIMEOUT: "5"
       PREVIEWS_CHAT: "true"
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
-      DATAPACKS: |-
-        https://cdn.modrinth.com/data/OCf6QSF2/versions/IrISgTy6/Health-1.5.1.zip
       ENABLE_ROLLING_LOGS: "true"
       LOG_TIMESTAMP: "true"
     volumes:
