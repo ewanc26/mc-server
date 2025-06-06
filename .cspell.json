@@ -13,6 +13,8 @@
         "mcserver",
         "noblank",
         "NPCS",
+        "pregen",
+        "RCON",
         "setupmc",
         "SPIGET",
         "XSET"
