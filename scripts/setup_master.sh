@@ -167,5 +167,103 @@ main() {
     echo
 }
 
+# Function to set up aliases
+setup_aliases() {
+    print_info "Setting up aliases for server status scripts..."
+    local shell_profile=""
+
+    if [ "$OS" == "macOS" ]; then
+        if [ -f "$HOME/.zshrc" ]; then
+            shell_profile="$HOME/.zshrc"
+        elif [ -f "$HOME/.bash_profile" ]; then
+            shell_profile="$HOME/.bash_profile"
+        else
+            print_warning "No .zshrc or .bash_profile found. Please add aliases manually."
+            return 1
+        fi
+        ALIAS_SCRIPT="server_status_mac.sh"
+    elif [ "$OS" == "Linux" ]; then
+        if [ -f "$HOME/.bashrc" ]; then
+            shell_profile="$HOME/.bashrc"
+        elif [ -f "$HOME/.zshrc" ]; then
+            shell_profile="$HOME/.zshrc"
+        else
+            print_warning "No .bashrc or .zshrc found. Please add aliases manually."
+            return 1
+        fi
+        ALIAS_SCRIPT="server_status_linux.sh"
+    else
+        print_warning "Unsupported OS for alias setup. Please add aliases manually."
+        return 1
+    fi
+
+    if [ -n "$shell_profile" ]; then
+        local alias_command="alias mcserver='$(pwd)/scripts/$ALIAS_SCRIPT'"
+        if ! grep -q "$alias_command" "$shell_profile"; then
+            echo "" >> "$shell_profile"
+            echo "# Alias for Minecraft server status script" >> "$shell_profile"
+            echo "$alias_command" >> "$shell_profile"
+            print_success "Alias 'mcserver' added to $shell_profile. Please run 'source $shell_profile' or restart your terminal."
+        else
+            print_info "Alias 'mcserver' already exists in $shell_profile."
+        fi
+    fi
+}
+
+# Main function
+main() {
+    echo
+    print_info "==============================================="
+    print_info " Ewan's Minecraft Server - Master Setup Script "
+    print_info "==============================================="
+    echo
+
+    # Detect OS
+    detect_os
+    print_info "Detected Operating System: $OS"
+    if [ "$OS" == "Unknown" ]; then
+        print_error "Unsupported operating system: $OSTYPE. This script primarily supports macOS and Linux."
+        exit 1
+    fi
+    echo
+
+    # Check prerequisites
+    check_docker
+    check_docker_compose
+    echo
+
+    # Setup DuckDNS
+    read -p "Do you want to set up or reconfigure DuckDNS? (y/N): " setup_duckdns_choice
+    if [[ "$setup_duckdns_choice" =~ ^[Yy]$ ]]; then
+        setup_duckdns_service || exit 1
+    else
+        print_info "Skipping DuckDNS setup."
+    fi
+    echo
+
+    # Start Minecraft Server
+    read -p "Do you want to start the Minecraft server now? (Y/n): " start_server_choice
+    if [[ ! "$start_server_choice" =~ ^[Nn]$ ]]; then # Default to Yes
+        start_minecraft_server || exit 1
+    else
+        print_info "Skipping Minecraft server start."
+        print_info "You can start it later using 'docker compose up -d' or the OS-specific script (scripts/server_status_mac.sh or scripts/server_status_linux.sh)."
+    fi
+    echo
+
+    # Setup Aliases
+    read -p "Do you want to set up aliases for the server status scripts? (Y/n): " setup_aliases_choice
+    if [[ ! "$setup_aliases_choice" =~ ^[Nn]$ ]]; then # Default to Yes
+        setup_aliases
+    else
+        print_info "Skipping alias setup."
+    fi
+    echo
+
+    print_success "Master setup process completed!"
+    print_info "Please refer to the documentation for further usage instructions."
+    echo
+}
+
 # Run main function
 main "$@"
