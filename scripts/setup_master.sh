@@ -91,12 +91,13 @@ start_minecraft_server() {
         server_script="./server_status_linux.sh"
     else
         print_warning "No specific server start script for $OS. Attempting generic 'docker compose up -d'."
+        (cd "$(dirname "$(dirname "$0")")" && \
         if docker compose up -d; then
             print_success "Minecraft server started with 'docker compose up -d'."
         else
             print_error "Failed to start Minecraft server with 'docker compose up -d'."
             return 1
-        fi
+        fi)
         return 0
     fi
 
@@ -112,59 +113,14 @@ start_minecraft_server() {
     else
         print_error "Server status script ($server_script) not found."
         print_warning "Attempting generic 'docker compose up -d'."
+        (cd "$(dirname "$(dirname "$0")")" && \
         if docker compose up -d; then
             print_success "Minecraft server started with 'docker compose up -d'."
         else
             print_error "Failed to start Minecraft server with 'docker compose up -d'."
             return 1
-        fi
+        fi)
     fi
-}
-
-# Main function
-main() {
-    echo
-    print_info "==============================================="
-    print_info " Ewan's Minecraft Server - Master Setup Script "
-    print_info "==============================================="
-    echo
-
-    # Detect OS
-    detect_os
-    print_info "Detected Operating System: $OS"
-    if [ "$OS" == "Unknown" ]; then
-        print_error "Unsupported operating system: $OSTYPE. This script primarily supports macOS and Linux."
-        exit 1
-    fi
-    echo
-
-    # Check prerequisites
-    check_docker
-    check_docker_compose
-    echo
-
-    # Setup DuckDNS
-    read -p "Do you want to set up or reconfigure DuckDNS? (y/N): " setup_duckdns_choice
-    if [[ "$setup_duckdns_choice" =~ ^[Yy]$ ]]; then
-        setup_duckdns_service || exit 1
-    else
-        print_info "Skipping DuckDNS setup."
-    fi
-    echo
-
-    # Start Minecraft Server
-    read -p "Do you want to start the Minecraft server now? (Y/n): " start_server_choice
-    if [[ ! "$start_server_choice" =~ ^[Nn]$ ]]; then # Default to Yes
-        start_minecraft_server || exit 1
-    else
-        print_info "Skipping Minecraft server start."
-        print_info "You can start it later using 'docker compose up -d' or the OS-specific script (scripts/server_status_mac.sh or scripts/server_status_linux.sh)."
-    fi
-    echo
-
-    print_success "Master setup process completed!"
-    print_info "Please refer to the documentation for further usage instructions."
-    echo
 }
 
 # Function to set up aliases
@@ -198,8 +154,9 @@ setup_aliases() {
     fi
 
     if [ -n "$shell_profile" ]; then
-        local alias_command="alias mcserver='$(pwd)/scripts/$ALIAS_SCRIPT'"
-        if ! grep -q "$alias_command" "$shell_profile"; then
+        local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        local alias_command="alias mcserver='$script_dir/$ALIAS_SCRIPT'"
+        if ! grep -q "alias mcserver=" "$shell_profile"; then
             echo "" >> "$shell_profile"
             echo "# Alias for Minecraft server status script" >> "$shell_profile"
             echo "$alias_command" >> "$shell_profile"
