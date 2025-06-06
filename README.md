@@ -16,3 +16,34 @@ This setup is primarily intended for personal use or small groups of friends.
 * [Troubleshooting](./docs/troubleshooting.md)
 * [Contributing](./docs/contributing.md)
 * [Contact](./docs/contact.md)
+
+## How to Use the Scripts
+
+To get started with the server setup, navigate to the `server` directory and run the master setup script:
+
+```bash
+./scripts/setup_master.sh
+```
+
+This script will guide you through the initial setup, including Docker checks, DuckDNS configuration (optional), and starting the Minecraft server.
+
+### Managing the Minecraft Server
+
+Once the server is set up, you can manage its status using the OS-specific scripts located in the `scripts/` directory:
+
+**For macOS:**
+
+```bash
+./scripts/server_status_mac.sh start   # To start the server
+./scripts/server_status_mac.sh stop    # To stop the server
+./scripts/server_status_mac.sh status  # To check server status
+```
+
+**For Linux:**
+
+```bash
+./scripts/server_status_linux.sh start   # To start the server
+./scripts/server_status_linux.sh stop    # To stop the server
+./scripts/server_status_linux.sh status  # To check server status
+./scripts/server_status_linux.sh cleanup # To clean up orphaned sleep prevention processes
+```

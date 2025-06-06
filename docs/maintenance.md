@@ -16,12 +16,3 @@ docker compose up -d
 ```bash
 docker compose restart mc
 ```
-
-## Backups
-
-```bash
-docker compose down
-chmod +x backup_minecraft.sh
-./backup_minecraft.sh
-docker compose up -d
-```
