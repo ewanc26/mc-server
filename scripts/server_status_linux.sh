@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SERVER_DIR="/Volumes/Storage/server"  # Adjust this path
-INHIBIT_PID_FILE="/tmp/mc_inhibit.pid"
-XSET_PID_FILE="/tmp/mc_xset.pid"
+SERVER_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
+INHIBIT_PID_FILE="$(dirname "$0")/.mc_inhibit.pid"
+XSET_PID_FILE="$(dirname "$0")/.mc_xset.pid"
 
 # Color output
 RED='\033[0;31m'

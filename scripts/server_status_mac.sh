@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SERVER_DIR="/Volumes/Storage/server"
-CAFFEINE_PID_FILE="/tmp/mc_caffeine.pid"
+SERVER_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
+CAFFEINE_PID_FILE="$(dirname "$0")/.mc_caffeine.pid"
 
 mc_start() {
     echo "Starting Minecraft server..."
