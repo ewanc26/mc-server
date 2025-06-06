@@ -65,9 +65,13 @@ check_docker_compose() {
 # Function to setup DuckDNS
 setup_duckdns_service() {
     print_info "Setting up DuckDNS..."
-    if [ -f "./setup_duckdns.sh" ]; then # This script is in the same directory
-        chmod +x ./setup_duckdns.sh
-        ./setup_duckdns.sh
+    # Get the directory where this script is located
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local duckdns_script="$script_dir/setup_duckdns.sh"
+    
+    if [ -f "$duckdns_script" ]; then
+        chmod +x "$duckdns_script"
+        "$duckdns_script"
         if [ $? -eq 0 ]; then
             print_success "DuckDNS setup script completed."
         else
@@ -75,7 +79,7 @@ setup_duckdns_service() {
             return 1
         fi
     else
-        print_error "setup_duckdns.sh not found in the scripts directory." # Updated error message
+        print_error "setup_duckdns.sh not found in the scripts directory."
         return 1
     fi
 }
@@ -84,14 +88,17 @@ setup_duckdns_service() {
 start_minecraft_server() {
     print_info "Starting the Minecraft server..."
     
+    # Get the directory where this script is located
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local server_script=""
+    
     if [ "$OS" == "macOS" ]; then
-        server_script="./server_status_mac.sh"
+        server_script="$script_dir/server_status_mac.sh"
     elif [ "$OS" == "Linux" ]; then
-        server_script="./server_status_linux.sh"
+        server_script="$script_dir/server_status_linux.sh"
     else
         print_warning "No specific server start script for $OS. Attempting generic 'docker compose up -d'."
-        (cd "$(dirname "$(dirname "$0")")" && \
+        (cd "$(dirname "$script_dir")" && \
         if docker compose up -d; then
             print_success "Minecraft server started with 'docker compose up -d'."
         else
@@ -113,7 +120,7 @@ start_minecraft_server() {
     else
         print_error "Server status script ($server_script) not found."
         print_warning "Attempting generic 'docker compose up -d'."
-        (cd "$(dirname "$(dirname "$0")")" && \
+        (cd "$(dirname "$script_dir")" && \
         if docker compose up -d; then
             print_success "Minecraft server started with 'docker compose up -d'."
         else
