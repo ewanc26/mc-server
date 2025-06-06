@@ -1,8 +1,14 @@
 #!/bin/bash
 
 SERVER_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-INHIBIT_PID_FILE="$(dirname "$0")/.mc_inhibit.pid"
-XSET_PID_FILE="$(dirname "$0")/.mc_xset.pid"
+
+TEMP_DIR="$SERVER_DIR/temp"
+if [ ! -d "$TEMP_DIR" ]; then
+    mkdir -p "$TEMP_DIR"
+fi
+
+INHIBIT_PID_FILE="$TEMP_DIR/.mc_inhibit.pid"
+XSET_PID_FILE="$TEMP_DIR/.mc_xset.pid"
 
 # Color output
 RED='\033[0;31m'
