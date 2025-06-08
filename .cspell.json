@@ -4,22 +4,23 @@
     "words": [
         "AIKAR",
         "caffeinate",
+        "customised",
         "DATAPACKS",
         "DPMS",
         "duckdns",
         "Ewan's",
+        "GAMEMODE",
         "itzg",
         "jzelinskie",
         "mcserver",
+        "modpack",
         "noblank",
         "NPCS",
         "pregen",
         "RCON",
         "setupmc",
         "SPIGET",
-        "XSET",
-        "customised",
-        "modpack"
+        "XSET"
     ],
     "ignorePaths": [
         "node_modules",
