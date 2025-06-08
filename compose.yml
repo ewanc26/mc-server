@@ -39,7 +39,6 @@ services:
         https://hangarcdn.papermc.io/plugins/ViaVersion/ViaVersion/versions/5.3.2/PAPER/ViaVersion-5.3.2.jar
         https://hangarcdn.papermc.io/plugins/ViaVersion/ViaBackwards/versions/5.3.2/PAPER/ViaBackwards-5.3.2.jar
         https://hangarcdn.papermc.io/plugins/pop4959/Chunky/versions/1.4.36/PAPER/Chunky-Bukkit-1.4.36.jar
-        https://cdn.modrinth.com/data/k4eQEyW4/versions/gJqvuEA0/WatutPlugin-2.0.0.jar
       PLAYER_IDLE_TIMEOUT: "5"
       PREVIEWS_CHAT: "true"
       BUG_REPORT_LINK: "https://github.com/ewanc26/mc-server/issues"
