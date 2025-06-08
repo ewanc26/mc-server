@@ -17,7 +17,9 @@
         "RCON",
         "setupmc",
         "SPIGET",
-        "XSET"
+        "XSET",
+        "customised",
+        "modpack"
     ],
     "ignorePaths": [
         "node_modules",
