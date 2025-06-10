@@ -58,4 +58,4 @@ services:
         201.21.zip"
       RESOURCE_PACK_REQUIRED: "true"
     volumes:
-      - "../server data/minecraft:/data"
+      - "./data/minecraft:/data"
