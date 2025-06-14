@@ -60,3 +60,4 @@ services:
       RESOURCE_PACK_REQUIRED: "true"
     volumes:
       - "./data:/data"
+      - "../backups:/backups"
