@@ -26,7 +26,7 @@ services:
       SIMULATION_DISTANCE: "5"
       SPAWN_PROTECTION: "8"
       OPS: |-
-        424cd779-3028-42b2-bbe0-9d140ded1e7e
+        424cd779-3028-42b2-bbe0-9d140ded1e7e # GreenZero26
       SPIGET_RESOURCES: |-
         1997
       PLUGINS: |-
@@ -39,19 +39,19 @@ services:
         https://cdn.modrinth.com/data/iR9qgF1M/versions/xl7AVZ7t/ServerLinksZ-1.1.1.jar
         https://cdn.modrinth.com/data/YrkmSvXh/versions/nYE6URb0/TreeFeller-1.26.1.jar
         https://cdn.modrinth.com/data/OhduvhIc/versions/lGJAFIph/veinminer-paper-2.4.5.jar
-      PLAYER_IDLE_TIMEOUT: "5"
+      PLAYER_IDLE_TIMEOUT: "10"
       PREVIEWS_CHAT: "true"
       ENABLE_ROLLING_LOGS: "true"
       LOG_TIMESTAMP: "true"
       ENABLE_WHITELIST: "true"
       WHITELIST: |-
-        424cd779-3028-42b2-bbe0-9d140ded1e7e
-        aed95856-af9d-4973-8c62-e6ee98cef7f5
-        94bec10f-6816-4cfa-9c2f-d65f27453911
-        eebc1970-c369-4e64-9420-e78169cda64f
-        57517054-98c4-42c9-b7eb-7a245ba2b346
-        fd04a9fd-00c5-4681-9188-4fc2fc244e76
-        c7ce379e-2f3e-4958-99a8-af9d8fa4c2a0
+        424cd779-3028-42b2-bbe0-9d140ded1e7e # GreenZero26
+        aed95856-af9d-4973-8c62-e6ee98cef7f5 # Deadlywaffles132
+        94bec10f-6816-4cfa-9c2f-d65f27453911 # System256
+        eebc1970-c369-4e64-9420-e78169cda64f # Golden_Remnant
+        57517054-98c4-42c9-b7eb-7a245ba2b346 # m3lonline
+        fd04a9fd-00c5-4681-9188-4fc2fc244e76 # sugarcuberocks 
+        c7ce379e-2f3e-4958-99a8-af9d8fa4c2a0 # thebatman1309
       ICON: "https://ewancroft.uk/favicon/android-chrome-512x512.png"
       OVERRIDE_ICON: "true"
       RESOURCE_PACK: "https://cdn.modrinth.com/data/rox3U8B6/versions/7zc13gCi/Bare%20Bones%\
