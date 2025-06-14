@@ -56,9 +56,6 @@ services:
         252bd633-504d-439b-8a5a-d99283f4b5a9
       ICON: "https://ewancroft.uk/favicon/android-chrome-512x512.png"
       OVERRIDE_ICON: "true"
-      RESOURCE_PACK: "https://cdn.modrinth.com/data/rox3U8B6/versions/7zc13gCi/Bare%20Bones%\
-        201.21.zip"
-      RESOURCE_PACK_REQUIRED: "true"
     volumes:
       - "./data:/data"
       - "../backups:/backups"
