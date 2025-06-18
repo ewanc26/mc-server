@@ -55,6 +55,7 @@ services:
         c7ce379e-2f3e-4958-99a8-af9d8fa4c2a0
         6806abfe-d014-4a15-a7ec-86878f218df1
         252bd633-504d-439b-8a5a-d99283f4b5a9
+        fb350ea2-f219-4cf7-877c-f41f23890726
       ICON: "https://ewancroft.uk/favicon/android-chrome-512x512.png"
       OVERRIDE_ICON: "true"
     volumes:
