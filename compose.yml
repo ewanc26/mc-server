@@ -40,6 +40,7 @@ services:
         https://cdn.modrinth.com/data/YrkmSvXh/versions/nYE6URb0/TreeFeller-1.26.1.jar
         https://cdn.modrinth.com/data/OhduvhIc/versions/lGJAFIph/veinminer-paper-2.4.5.jar
         https://cdn.modrinth.com/data/1u6JkXh5/versions/Bu1zaaoc/worldedit-bukkit-7.3.9.jar
+        https://cdn.modrinth.com/data/IBSpJfbm/versions/IDSsbJDx/PluginUpdater-1.0.15.jar
       PLAYER_IDLE_TIMEOUT: "10"
       PREVIEWS_CHAT: "true"
       ENABLE_ROLLING_LOGS: "true"
