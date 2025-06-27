@@ -27,6 +27,7 @@ services:
       SPAWN_PROTECTION: "8"
       OPS: |-
         424cd779-3028-42b2-bbe0-9d140ded1e7e
+        252bd633-504d-439b-8a5a-d99283f4b5a9
       SPIGET_RESOURCES: |-
         1997
       PLUGINS: |-
