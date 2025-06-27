@@ -16,6 +16,7 @@ This setup is primarily intended for personal use or small groups of friends.
 * [Troubleshooting](./docs/troubleshooting.md)
 * [Contributing](./docs/contributing.md)
 * [Contact](./docs/contact.md)
+* [Rules of my server](./docs/rules.md)
 
 ### How to Use the Scripts
 
