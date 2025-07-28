@@ -72,7 +72,3 @@ This project includes several utility scripts located in the `scripts/` director
              ./scripts/server_status_mac.sh status   # For macOS
              ./scripts/server_status_linux.sh status # For Linux
              ```
-
-## My Modpack
-
-[My modpack](./1.21.1.zip) is my customised [Prism Launcher](https://prismlauncher.org) instance. It's what I recommend when playing on my server.
