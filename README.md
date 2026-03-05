@@ -72,3 +72,7 @@ This project includes several utility scripts located in the `scripts/` director
              ./scripts/server_status_mac.sh status   # For macOS
              ./scripts/server_status_linux.sh status # For Linux
              ```
+
+## ☕ Support
+
+If you found this useful, consider [buying me a ko-fi](https://ko-fi.com/ewancroft)!
