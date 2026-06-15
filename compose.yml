@@ -278,3 +278,17 @@ services:
       - "com.minecraft.type=${MC_TYPE:-PAPER}"
       - "com.minecraft.version=${MC_VERSION:-1.21.1}"
       - "com.minecraft.optimization=${MC_OPTIMIZATION_TIER:-auto}"
+
+  tcpshield-agent:
+    image: tcpshield/sentry-node:latest
+    container_name: tcpshield-agent
+    restart: always
+    environment:
+      - SENTRY_TOKEN=${SENTRY_TOKEN}
+      - BACKEND_ADDR=mc-server:25565
+    networks:
+      - tcpshield-net
+
+networks:
+  tcpshield-net:
+    driver: bridge
