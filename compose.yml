@@ -34,6 +34,9 @@ services:
           memory: 2G
     
     environment:
+      # Console Access
+      CREATE_CONSOLE_IN_PIPE: "true"
+      
       # Server Type and Version
       EULA: "${MC_EULA:-TRUE}"
       TYPE: "${MC_TYPE:-PAPER}"
