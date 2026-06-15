@@ -282,6 +282,7 @@ services:
 
   playit:
     image: ghcr.io/playit-cloud/playit-agent:0.15
+    platform: linux/amd64
     container_name: playit-agent
     environment:
       PLAYIT_SECRET: "${PLAYIT_SECRET}"
