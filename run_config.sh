@@ -1,4 +1,6 @@
 # Quick Start - Run the auto-configuration
-chmod +x /Volumes/Storage/Developer/Git/GitHub/ewanc26/mc-server/scripts/auto_configure.sh
-cd /Volumes/Storage/Developer/Git/GitHub/ewanc26/mc-server
-MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+# Aikar's optimized JVM flags are now configured in compose.yml for 6GB memory.
+# To start the server, ensure you have set the version and run the configuration script:
+# MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+
+docker compose up -d
