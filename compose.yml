@@ -113,7 +113,7 @@ services:
       
       # Plugins (Auto-selected based on Minecraft version)
       # Configured via auto_configure.sh
-      PLUGINS: "$(cat plugins.txt | tr '\n' ',')"
+      PLUGINS: ""
       
       # Modrinth projects — auto-resolves the correct build for the running
       # MC version/loader, so it doesn't go stale like pinned jar URLs do
