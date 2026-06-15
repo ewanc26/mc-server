@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Master Setup Script for Ewan's Minecraft Server
-# Enhanced with Maximum Efficiency Optimizations and Minefetch Integration
 
 # Colors for output
 RED='\033[0;31m'
@@ -19,7 +18,10 @@ COMPOSE_FILE="$SERVER_DIR/compose.yml"
 BACKUP_DIR="$SERVER_DIR/data_backups"
 CONFIG_APPLIED=false
 
-# Function to print colored output
+# ---------------------------------------------------------------------------
+# Output helpers
+# ---------------------------------------------------------------------------
+
 print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -44,21 +46,22 @@ print_tip() {
     echo -e "${MAGENTA}[TIP]${NC} $1"
 }
 
-# Function to print banner
 print_banner() {
     echo -e "${CYAN}"
     cat << "EOF"
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║     Ewan's Minecraft Server - Master Setup Script        ║
-║     Maximum Efficiency Edition with Minefetch            ║
+║          Ewan's Minecraft Server — Setup Script          ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"
 }
 
-# Function to detect operating system
+# ---------------------------------------------------------------------------
+# Environment
+# ---------------------------------------------------------------------------
+
 detect_os() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         OS="macOS"
@@ -69,7 +72,6 @@ detect_os() {
     fi
 }
 
-# Function to detect Linux distribution
 detect_linux_distro() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -83,7 +85,6 @@ detect_linux_distro() {
     fi
 }
 
-# Function to check if Docker is installed and running
 check_docker() {
     print_info "Checking Docker installation..."
     if ! command -v docker &> /dev/null; then
@@ -91,7 +92,7 @@ check_docker() {
         print_info "Please install Docker Desktop from https://www.docker.com/products/docker-desktop/"
         exit 1
     fi
-    
+
     if ! docker info &> /dev/null; then
         print_error "Docker is installed but not running."
         print_info "Please start Docker Desktop and try again."
@@ -100,584 +101,543 @@ check_docker() {
     print_success "Docker is installed and running."
 }
 
-# Function to check if Docker Compose is installed
 check_docker_compose() {
     print_info "Checking Docker Compose installation..."
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-        print_error "Docker Compose is not installed."
-        print_info "It's usually included with Docker Desktop. Please ensure Docker Desktop is up to date."
+    if ! docker compose version &> /dev/null; then
+        print_error "Docker Compose V2 is not available."
+        print_info "Ensure Docker Desktop is up to date."
         exit 1
     fi
     print_success "Docker Compose is available."
 }
 
-# Function to create backup
+# ---------------------------------------------------------------------------
+# .env setup
+# ---------------------------------------------------------------------------
+
+setup_env() {
+    print_header "Environment Configuration"
+
+    local env_file="$SERVER_DIR/.env"
+    local env_example="$SERVER_DIR/.env.example"
+
+    if [ ! -f "$env_file" ]; then
+        if [ -f "$env_example" ]; then
+            print_info "No .env file found. Copying from .env.example..."
+            cp "$env_example" "$env_file"
+            print_success ".env created — open it and fill in MC_VERSION at minimum."
+            read -p "Press Enter when ready, or Ctrl+C to exit and edit first: "
+        else
+            print_warning ".env.example not found. Create .env manually before continuing."
+            read -p "Press Enter when ready, or Ctrl+C to exit: "
+        fi
+    else
+        print_success ".env file found."
+    fi
+
+    # Source .env so variables are available for the rest of the script
+    if [ -f "$env_file" ]; then
+        set -a
+        # shellcheck disable=SC1090
+        source "$env_file"
+        set +a
+    fi
+
+    if [ -z "$MC_VERSION" ]; then
+        read -p "Minecraft version to use [1.21.1]: " input_version
+        export MC_VERSION="${input_version:-1.21.1}"
+    else
+        print_info "MC_VERSION: $MC_VERSION"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Backup
+# ---------------------------------------------------------------------------
+
 create_backup() {
     print_header "Creating Backup"
-    
-    if [ ! -d "$SERVER_DIR/data" ]; then
-        print_warning "No data directory found. Skipping backup."
+
+    local data_dir="${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}"
+
+    if [ ! -d "$data_dir" ]; then
+        print_warning "No data directory found at $data_dir. Skipping backup."
         return 0
     fi
-    
-    # Create backup directory if it doesn't exist
+
     mkdir -p "$BACKUP_DIR"
-    
+
     local backup_name="data_backup_$(date +%Y%m%d_%H%M%S)"
     local backup_path="$BACKUP_DIR/$backup_name"
-    
+
     print_info "Creating backup: $backup_name"
     print_info "This may take a few minutes..."
-    
-    if cp -r "$SERVER_DIR/data" "$backup_path"; then
-        print_success "Backup created successfully at: $backup_path"
-        
-        # Also backup compose.yml
+
+    if cp -r "$data_dir" "$backup_path"; then
+        print_success "Backup created at: $backup_path"
         if [ -f "$COMPOSE_FILE" ]; then
             cp "$COMPOSE_FILE" "$backup_path/compose.yml.backup"
-            print_success "compose.yml backed up as well"
+            print_success "compose.yml backed up as well."
         fi
-        
         return 0
     else
-        print_error "Failed to create backup"
+        print_error "Failed to create backup."
         return 1
     fi
 }
 
-# Function to show optimization levels
+# ---------------------------------------------------------------------------
+# Optimisation
+# ---------------------------------------------------------------------------
+
 show_optimization_levels() {
     echo ""
-    print_header "Available Optimization Levels"
+    print_header "Available Optimisation Levels"
     echo ""
-    
+
     echo -e "${GREEN}1) Maximum Efficiency (RECOMMENDED)${NC}"
-    echo "   ├─ Memory: 256MB-1.28GB (93% reduction)"
+    echo "   ├─ Memory: 256MB-1.28GB"
     echo "   ├─ Players: 6 max"
     echo "   ├─ View Distance: 4 chunks"
-    echo "   ├─ Plugins: 5 essential"
-    echo "   ├─ Cost Savings: ~$60/month"
-    echo "   └─ Best for: 2-6 players, budget hosting"
+    echo "   └─ Best for: 2-6 players"
     echo ""
-    
-    echo -e "${YELLOW}2) Ultra-Optimized (BALANCED)${NC}"
-    echo "   ├─ Memory: 384MB-1.5GB (75% reduction)"
+
+    echo -e "${YELLOW}2) Ultra-Optimised (BALANCED)${NC}"
+    echo "   ├─ Memory: 384MB-1.5GB"
     echo "   ├─ Players: 8 max"
     echo "   ├─ View Distance: 5 chunks"
-    echo "   ├─ Plugins: 6 essential"
-    echo "   ├─ Cost Savings: ~$45/month"
-    echo "   └─ Best for: 4-8 players, moderate hosting"
+    echo "   └─ Best for: 4-8 players"
     echo ""
-    
-    echo -e "${CYAN}3) Light Optimization${NC}"
-    echo "   ├─ Memory: 512MB-2GB (50% reduction)"
+
+    echo -e "${CYAN}3) Light Optimisation${NC}"
+    echo "   ├─ Memory: 512MB-2GB"
     echo "   ├─ Players: 10 max"
     echo "   ├─ View Distance: 6 chunks"
-    echo "   ├─ Plugins: 6 essential"
-    echo "   ├─ Cost Savings: ~$30/month"
-    echo "   └─ Best for: 6-10 players, standard hosting"
+    echo "   └─ Best for: 6-10 players"
     echo ""
-    
+
     echo -e "${RED}4) Original Configuration${NC}"
     echo "   ├─ Memory: 4GB fixed"
     echo "   ├─ Players: 10 max"
     echo "   ├─ View Distance: 10 chunks"
-    echo "   ├─ Plugins: 11 total"
-    echo "   ├─ Cost: Full price"
-    echo "   └─ Best for: High-end hosting, many players"
+    echo "   └─ Best for: high-end hosting"
     echo ""
-    
-    echo -e "${BLUE}5) Skip Optimization${NC}"
+
+    echo -e "${BLUE}5) Skip${NC}"
     echo "   └─ Keep current configuration"
     echo ""
 }
 
-# Function to apply Maximum Efficiency configuration
 apply_max_efficiency() {
     print_header "Applying Maximum Efficiency Configuration"
-    
-    # The compose.yml is already updated with max efficiency settings
-    # Just verify it exists
+
     if [ ! -f "$COMPOSE_FILE" ]; then
         print_error "compose.yml not found at $COMPOSE_FILE"
         return 1
     fi
-    
-    print_success "Maximum Efficiency configuration already applied to compose.yml"
-    print_info "Configuration includes:"
+
+    print_success "Maximum Efficiency settings applied in compose.yml."
+    print_info "Configuration:"
     echo "  - Memory: 256MB-1.28GB"
     echo "  - View Distance: 4 chunks"
     echo "  - Simulation Distance: 3 chunks"
     echo "  - Max Players: 6"
-    echo "  - Plugins: 5 essential (includes Minefetch)"
-    echo "  - Advanced JVM tuning (16 custom flags)"
-    echo "  - Aggressive Paper/Spigot/Bukkit optimizations"
-    
+    echo "  - Plugins: 5 (Backuper, ViaVersion, Minefetch, LuckPerms, Spark)"
+    echo "  - Aikar's JVM flags"
+
     CONFIG_APPLIED=true
     return 0
 }
 
-# Function to install neofetch (cross-platform)
+# ---------------------------------------------------------------------------
+# Neofetch (for Minefetch plugin)
+# ---------------------------------------------------------------------------
+
 install_neofetch() {
     print_header "Installing Neofetch for Minefetch Plugin"
-    
-    # Check if server is running
-    if ! docker ps | grep -q "mc"; then
-        print_warning "Server container 'mc' is not running."
-        print_info "Please start the server first, then run: docker exec mc apt-get update && docker exec mc apt-get install -y neofetch"
+
+    if ! docker ps | grep -q "^.*mc$"; then
+        print_warning "Server container 'mc' is not running. Start the server first."
         return 1
     fi
-    
-    print_info "Detected OS: $OS"
-    
-    if [ "$OS" == "Linux" ] || docker ps | grep -q "mc"; then
-        # Install in Docker container
-        print_info "Installing neofetch in server container..."
-        
-        # Detect container OS
-        docker exec mc bash -c "cat /etc/os-release" &> /dev/null
-        if [ $? -eq 0 ]; then
-            local container_os=$(docker exec mc bash -c "grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '\"'")
-            print_info "Container OS: $container_os"
-            
-            case "$container_os" in
-                ubuntu|debian)
-                    print_info "Installing via apt-get..."
-                    docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
-                    ;;
-                fedora|rhel|centos|rocky|almalinux)
-                    print_info "Installing via dnf/yum..."
-                    if docker exec mc bash -c "command -v dnf" &> /dev/null; then
-                        docker exec mc bash -c "dnf install -y neofetch" > /dev/null 2>&1
-                    else
-                        docker exec mc bash -c "yum install -y neofetch" > /dev/null 2>&1
-                    fi
-                    ;;
-                *)
-                    print_warning "Unknown container OS. Attempting apt-get..."
-                    docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
-                    ;;
-            esac
-        fi
-        
-        # Verify installation
-        if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
-            local version=$(docker exec mc neofetch --version 2>&1 | head -1)
-            print_success "Neofetch installed in container: $version"
-            
-            # Test it
-            print_info "Testing neofetch output:"
-            echo "----------------------------------------"
-            docker exec mc neofetch --off --stdout | head -10
-            echo "----------------------------------------"
-            
-            return 0
-        else
-            print_error "Failed to install neofetch in container"
-            return 1
-        fi
-    elif [ "$OS" == "macOS" ]; then
-        # Install on macOS host (for reference)
-        print_info "Detected macOS. Installing neofetch via Homebrew..."
-        
-        if ! command -v brew &> /dev/null; then
-            print_warning "Homebrew not found. Installing Homebrew first..."
-            print_info "This may take several minutes. Please be patient..."
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            
-            # Add Homebrew to PATH
-            if [[ -f "/opt/homebrew/bin/brew" ]]; then
-                eval "$(/opt/homebrew/bin/brew shellenv)"
-            elif [[ -f "/usr/local/bin/brew" ]]; then
-                eval "$(/usr/local/bin/brew shellenv)"
+
+    print_info "Installing neofetch in server container..."
+
+    local container_os
+    container_os=$(docker exec mc bash -c "grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '\"'" 2>/dev/null)
+
+    case "$container_os" in
+        ubuntu|debian)
+            docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
+            ;;
+        fedora|rhel|centos|rocky|almalinux)
+            if docker exec mc bash -c "command -v dnf" &> /dev/null; then
+                docker exec mc bash -c "dnf install -y neofetch" > /dev/null 2>&1
+            else
+                docker exec mc bash -c "yum install -y neofetch" > /dev/null 2>&1
             fi
-        fi
-        
-        print_info "Installing neofetch..."
-        brew install neofetch
-        
-        if command -v neofetch &> /dev/null; then
-            print_success "Neofetch installed on macOS host"
-            print_info "Note: For Minefetch to work in Minecraft, neofetch must also be in the container"
-            return 0
-        else
-            print_error "Failed to install neofetch on macOS"
-            return 1
-        fi
-    fi
-}
+            ;;
+        *)
+            print_warning "Unknown container OS ($container_os). Attempting apt-get..."
+            docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
+            ;;
+    esac
 
-# Function to setup DuckDNS
-setup_duckdns_service() {
-    print_header "Setting up DuckDNS"
-    
-    local duckdns_script="$SCRIPT_DIR/setup_duckdns.sh"
-    
-    if [ -f "$duckdns_script" ]; then
-        chmod +x "$duckdns_script"
-        "$duckdns_script"
-        if [ $? -eq 0 ]; then
-            print_success "DuckDNS setup completed"
-        else
-            print_error "DuckDNS setup failed. Check output above."
-            return 1
-        fi
-    else
-        print_error "setup_duckdns.sh not found in scripts directory"
-        return 1
-    fi
-}
-
-# Function to start the Minecraft server
-start_minecraft_server() {
-    print_header "Starting Minecraft Server"
-    
-    cd "$SERVER_DIR"
-    
-    print_info "Starting server with docker-compose..."
-    
-    if docker-compose up -d 2>/dev/null || docker compose up -d 2>/dev/null; then
-        print_success "Server started successfully"
-        
-        print_info "Waiting for server to initialize (this may take 30-60 seconds)..."
-        sleep 5
-        
-        # Show logs
-        print_info "Showing server logs (Ctrl+C to stop watching):"
+    if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
+        local version
+        version=$(docker exec mc neofetch --version 2>&1 | head -1)
+        print_success "Neofetch installed: $version"
         echo "----------------------------------------"
-        docker-compose logs -f --tail=20 mc 2>/dev/null || docker compose logs -f --tail=20 mc 2>/dev/null &
-        local logs_pid=$!
-        
-        # Wait a bit then stop showing logs
-        sleep 15
-        kill $logs_pid 2>/dev/null
-        
-        echo ""
-        print_tip "To view full logs, run: docker-compose logs -f mc"
-        print_tip "To check server status, run: docker ps"
-        
+        docker exec mc neofetch --off --stdout | head -10
+        echo "----------------------------------------"
         return 0
     else
-        print_error "Failed to start server"
+        print_error "Failed to install neofetch in container."
         return 1
     fi
 }
 
-# Function to show server status
-show_server_status() {
-    print_header "Server Status"
-    
-    if docker ps | grep -q "mc"; then
-        print_success "Server is RUNNING"
-        
-        # Get resource usage
-        print_info "Resource Usage:"
-        docker stats mc --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
-        
+# ---------------------------------------------------------------------------
+# Server start
+# ---------------------------------------------------------------------------
+
+start_minecraft_server() {
+    print_header "Starting Minecraft Server"
+
+    cd "$SERVER_DIR" || exit 1
+
+    if docker compose up -d; then
+        print_success "Containers started."
+
+        print_info "Waiting for server to initialise (this may take 30-60 seconds)..."
+        sleep 5
+
+        print_info "Showing server logs (Ctrl+C to stop watching):"
+        echo "----------------------------------------"
+        docker compose logs -f --tail=20 mc &
+        local logs_pid=$!
+        sleep 15
+        kill $logs_pid 2>/dev/null
         echo ""
-        print_tip "In-game commands to check performance:"
-        echo "  /tps        - Check server TPS"
-        echo "  /minefetch  - Display system information"
-        echo "  /loadfetch  - Display CPU/RAM usage with graphs"
+
+        print_tip "Full logs: docker compose logs -f mc"
+        print_tip "Status:    docker ps"
+        return 0
     else
-        print_warning "Server is NOT running"
-        print_info "To start: docker-compose up -d"
+        print_error "Failed to start containers."
+        return 1
     fi
 }
 
-# Function to run post-installation tests
+# ---------------------------------------------------------------------------
+# playit.gg tunnel
+# ---------------------------------------------------------------------------
+
+setup_playit() {
+    print_header "playit.gg Tunnel"
+
+    local env_file="$SERVER_DIR/.env"
+
+    # Check if PLAYIT_SECRET is already configured
+    if [ -f "$env_file" ] && grep -qE "^PLAYIT_SECRET=.+" "$env_file"; then
+        print_success "PLAYIT_SECRET is set — tunnel will start automatically."
+        return 0
+    fi
+
+    print_warning "PLAYIT_SECRET is not set in .env."
+    print_info "Starting the playit agent to generate a claim URL..."
+
+    cd "$SERVER_DIR" || exit 1
+    docker compose up -d playit 2>/dev/null
+
+    print_info "Waiting for claim URL..."
+    sleep 4
+
+    echo ""
+    docker compose logs --tail=30 playit 2>/dev/null
+    echo ""
+
+    print_tip "1. Open the claim URL above in your browser and sign into playit.gg"
+    print_tip "2. Add a Minecraft tunnel pointed at  mc:25565"
+    print_tip "3. Copy the secret key from the playit dashboard"
+    print_tip "4. Add it to .env:  PLAYIT_SECRET=your_secret_here"
+    print_tip "5. Run:  docker compose restart playit"
+    echo ""
+}
+
+# ---------------------------------------------------------------------------
+# Shell aliases
+# ---------------------------------------------------------------------------
+
+setup_aliases() {
+    print_header "Setting up Command Aliases"
+
+    local shell_profile=""
+    local alias_script=""
+
+    if [ "$OS" == "macOS" ]; then
+        shell_profile="${HOME}/.zshrc"
+        [ ! -f "$shell_profile" ] && shell_profile="${HOME}/.bash_profile"
+        alias_script="server_status_mac.sh"
+    elif [ "$OS" == "Linux" ]; then
+        shell_profile="${HOME}/.bashrc"
+        [ ! -f "$shell_profile" ] && shell_profile="${HOME}/.zshrc"
+        alias_script="server_status_linux.sh"
+    fi
+
+    if [ -z "$shell_profile" ]; then
+        print_warning "Could not find shell profile. Add aliases manually."
+        return 1
+    fi
+
+    if grep -q "alias mcserver=" "$shell_profile" 2>/dev/null; then
+        print_info "Aliases already exist in $shell_profile."
+        return 0
+    fi
+
+    {
+        echo ""
+        echo "# Minecraft Server Aliases"
+        echo "alias mcserver='$SCRIPT_DIR/$alias_script'"
+        echo "alias mclog='docker compose -f $COMPOSE_FILE logs -f mc'"
+        echo "alias mcstats='docker stats mc'"
+        echo "alias mcstart='docker compose -f $COMPOSE_FILE up -d'"
+        echo "alias mcstop='docker compose -f $COMPOSE_FILE down'"
+        echo "alias mcrestart='docker compose -f $COMPOSE_FILE restart'"
+    } >> "$shell_profile"
+
+    print_success "Aliases added to $shell_profile."
+    print_info "Available aliases: mcserver, mclog, mcstats, mcstart, mcstop, mcrestart"
+    print_tip "Run:  source $shell_profile  (or restart your terminal)"
+}
+
+# ---------------------------------------------------------------------------
+# Post-install tests
+# ---------------------------------------------------------------------------
+
 run_post_install_tests() {
     print_header "Running Post-Installation Tests"
-    
+
     local tests_passed=0
     local tests_total=5
-    
-    # Test 1: Docker running
-    print_info "Test 1/5: Docker status"
-    if docker ps | grep -q "mc"; then
-        print_success "✓ Server container is running"
+
+    # Test 1: mc container running
+    print_info "Test 1/5: mc container"
+    if docker ps --format '{{.Names}}' | grep -q "^mc$"; then
+        print_success "✓ mc container is running"
         ((tests_passed++))
     else
-        print_error "✗ Server container is not running"
+        print_error "✗ mc container is not running"
     fi
-    
+
     # Test 2: Memory usage
     print_info "Test 2/5: Memory usage"
-    local mem_usage=$(docker stats mc --no-stream --format "{{.MemUsage}}" | awk '{print $1}')
-    if [[ ! -z "$mem_usage" ]]; then
+    local mem_usage
+    mem_usage=$(docker stats mc --no-stream --format "{{.MemUsage}}" 2>/dev/null | awk '{print $1}')
+    if [ -n "$mem_usage" ]; then
         print_success "✓ Memory usage: $mem_usage"
         ((tests_passed++))
     else
-        print_error "✗ Could not get memory usage"
+        print_error "✗ Could not read memory usage"
     fi
-    
-    # Test 3: Neofetch installed
-    print_info "Test 3/5: Neofetch installation"
+
+    # Test 3: Neofetch
+    print_info "Test 3/5: Neofetch"
     if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
         print_success "✓ Neofetch is installed"
         ((tests_passed++))
     else
-        print_warning "✗ Neofetch is not installed (Minefetch won't work)"
+        print_warning "✗ Neofetch not installed — Minefetch won't work"
     fi
-    
-    # Test 4: TCP Shield plugin
-    print_info "Test 4/5: TCP Shield plugin"
+
+    # Test 4: playit agent
+    print_info "Test 4/5: playit agent"
     sleep 2
-    if docker-compose logs mc 2>/dev/null | grep -q "TCPShield" || docker compose logs mc 2>/dev/null | grep -q "TCPShield"; then
-        print_success "✓ TCP Shield plugin detected"
+    if docker ps --format '{{.Names}}' | grep -q "^playit-agent$"; then
+        print_success "✓ playit agent is running"
         ((tests_passed++))
     else
-        print_warning "✗ TCP Shield plugin not detected (may still be loading)"
+        print_warning "✗ playit agent not running — check PLAYIT_SECRET in .env"
     fi
-    
-    # Test 5: Server responsiveness
-    print_info "Test 5/5: Server responsiveness"
-    if docker-compose logs mc 2>/dev/null | grep -q "Done" || docker compose logs mc 2>/dev/null | grep -q "Done"; then
-        print_success "✓ Server is ready (Done loading)"
+
+    # Test 5: Server done loading
+    print_info "Test 5/5: Server ready"
+    if docker compose logs mc 2>/dev/null | grep -q "Done"; then
+        print_success "✓ Server is ready"
         ((tests_passed++))
     else
-        print_warning "✗ Server still initializing (this is normal, wait 1-2 minutes)"
+        print_warning "✗ Server still initialising — wait 1-2 minutes and recheck"
     fi
-    
+
     echo ""
-    print_info "Tests Passed: $tests_passed/$tests_total"
-    
+    print_info "Tests passed: $tests_passed/$tests_total"
+
     if [ $tests_passed -ge 3 ]; then
-        print_success "Server setup looks good! ✓"
+        print_success "Setup looks good! ✓"
     else
-        print_warning "Some tests failed. Please check the output above."
+        print_warning "Some tests failed. Check the output above."
     fi
 }
 
-# Function to setup aliases
-setup_aliases() {
-    print_header "Setting up Command Aliases"
-    
-    local shell_profile=""
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
 
-    if [ "$OS" == "macOS" ]; then
-        if [ -f "$HOME/.zshrc" ]; then
-            shell_profile="$HOME/.zshrc"
-        elif [ -f "$HOME/.bash_profile" ]; then
-            shell_profile="$HOME/.bash_profile"
-        fi
-        ALIAS_SCRIPT="server_status_mac.sh"
-    elif [ "$OS" == "Linux" ]; then
-        if [ -f "$HOME/.bashrc" ]; then
-            shell_profile="$HOME/.bashrc"
-        elif [ -f "$HOME/.zshrc" ]; then
-            shell_profile="$HOME/.zshrc"
-        fi
-        ALIAS_SCRIPT="server_status_linux.sh"
-    fi
-
-    if [ -n "$shell_profile" ]; then
-        local alias_command="alias mcserver='$SCRIPT_DIR/$ALIAS_SCRIPT'"
-        
-        if ! grep -q "alias mcserver=" "$shell_profile"; then
-            echo "" >> "$shell_profile"
-            echo "# Minecraft Server Aliases" >> "$shell_profile"
-            echo "$alias_command" >> "$shell_profile"
-            echo "alias mclog='docker-compose -f $SERVER_DIR/compose.yml logs -f mc'" >> "$shell_profile"
-            echo "alias mcstats='docker stats mc'" >> "$shell_profile"
-            echo "alias mcstop='docker-compose -f $SERVER_DIR/compose.yml down'" >> "$shell_profile"
-            echo "alias mcstart='docker-compose -f $SERVER_DIR/compose.yml up -d'" >> "$shell_profile"
-            echo "alias mcrestart='docker-compose -f $SERVER_DIR/compose.yml restart'" >> "$shell_profile"
-            
-            print_success "Aliases added to $shell_profile"
-            print_info "Available aliases:"
-            echo "  mcserver  - Server status script"
-            echo "  mclog     - View server logs"
-            echo "  mcstats   - View resource usage"
-            echo "  mcstart   - Start server"
-            echo "  mcstop    - Stop server"
-            echo "  mcrestart - Restart server"
-            echo ""
-            print_tip "Run: source $shell_profile (or restart terminal)"
-        else
-            print_info "Aliases already exist in $shell_profile"
-        fi
-    else
-        print_warning "Could not find shell profile. Please add aliases manually."
-    fi
-}
-
-# Function to display final summary
 display_summary() {
     echo ""
     print_header "Setup Complete! 🎉"
     echo ""
-    
-    print_success "Your Minecraft server is configured and ready!"
+
+    print_success "Your Minecraft server is configured and ready."
     echo ""
-    
+
     if [ "$CONFIG_APPLIED" = true ]; then
-        echo -e "${GREEN}Applied Configuration: Maximum Efficiency${NC}"
+        echo -e "${GREEN}Applied: Maximum Efficiency${NC}"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  Memory Usage: 256MB-1.28GB (93% reduction)"
-        echo "  Max Players: 6"
-        echo "  View Distance: 4 chunks"
-        echo "  Simulation Distance: 3 chunks"
-        echo "  Plugins: 5 essential (includes Minefetch)"
-        echo "  Estimated Savings: ~$60/month"
+        echo "  Memory:              256MB-1.28GB"
+        echo "  Max players:         6"
+        echo "  View distance:       4 chunks"
+        echo "  Simulation distance: 3 chunks"
+        echo "  Plugins:             5 (Backuper, ViaVersion, Minefetch, LuckPerms, Spark)"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
     fi
-    
+
     print_info "Quick Commands:"
-    echo "  View logs:     docker-compose logs -f mc"
-    echo "  Check status:  docker stats mc"
-    echo "  Stop server:   docker-compose down"
-    echo "  Restart:       docker-compose restart"
+    echo "  View logs:   docker compose logs -f mc"
+    echo "  Status:      docker stats mc"
+    echo "  Stop:        docker compose down"
+    echo "  Restart:     docker compose restart"
     echo ""
-    
-    print_info "In-Game Commands (once connected):"
-    echo "  /minefetch  - Display system information"
-    echo "  /loadfetch  - Display CPU/RAM usage graphs"
-    echo "  /tps        - Check server performance"
+
+    print_info "In-Game Commands:"
+    echo "  /tps        - Server performance"
+    echo "  /minefetch  - System information"
+    echo "  /loadfetch  - CPU/RAM graphs"
     echo ""
-    
+
     print_info "Next Steps:"
-    echo "  1. Wait 1-2 minutes for full server startup"
-    echo "  2. Connect via your TCP Shield domain"
-    echo "  3. Run /minefetch to test system monitoring"
-    echo "  4. Monitor performance with: docker stats mc"
+    echo "  1. Wait 1-2 minutes for full startup"
+    echo "  2. Complete playit.gg tunnel setup if not done — https://playit.gg/account/tunnels"
+    echo "  3. Connect via your playit.gg address"
+    echo "  4. Run /minefetch to verify system monitoring"
     echo ""
-    
+
     print_info "Documentation:"
-    echo "  - MAX_EFFICIENCY_GUIDE.md - Complete optimization details"
-    echo "  - docs/ folder - Additional guides and troubleshooting"
+    echo "  - docs/ — guides and troubleshooting"
+    echo "  - .env  — all configurable options"
     echo ""
-    
-    if [ -d "$BACKUP_DIR" ]; then
-        print_tip "Backups are stored in: $BACKUP_DIR"
-    fi
-    
+
     echo ""
     print_success "Happy crafting! ⛏️"
     echo ""
 }
 
-# Main function
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
 main() {
     clear
     print_banner
-    
-    # Detect OS
+
     detect_os
-    print_info "Detected Operating System: $OS"
-    
+    print_info "Operating System: $OS"
+
     if [ "$OS" == "Linux" ]; then
         detect_linux_distro
-        print_info "Linux Distribution: $DISTRO"
+        print_info "Distribution: $DISTRO"
     fi
-    
+
     if [ "$OS" == "Unknown" ]; then
         print_error "Unsupported operating system: $OSTYPE"
-        print_info "This script supports macOS and Linux only"
+        print_info "This script supports macOS and Linux only."
         exit 1
     fi
     echo ""
-    
-    # Check prerequisites
+
+    # Prerequisites
     check_docker
     check_docker_compose
     echo ""
-    
-    # Auto-configure Java version and plugins based on Minecraft version
-    print_header "Auto-Configuring for Minecraft Version"
+
+    # Environment (.env + MC_VERSION)
+    setup_env
+    echo ""
+
+    # Auto-configure image and plugins for the given MC version
+    print_header "Auto-Configuring for Minecraft $MC_VERSION"
     if [ -f "$SCRIPT_DIR/auto_configure.sh" ]; then
-        # Make script executable
         chmod +x "$SCRIPT_DIR/auto_configure.sh"
-        
-        # Get MC version if set, otherwise prompt
-        if [ -z "$MC_VERSION" ]; then
-            read -p "Minecraft version to use [1.21.1]: " input_version
-            export MC_VERSION="${input_version:-1.21.1}"
-        fi
-        
-        # Run auto-configuration
         bash "$SCRIPT_DIR/auto_configure.sh"
-        print_success "Auto-configuration complete"
+        print_success "Auto-configuration complete."
     else
-        print_warning "Auto-configuration script not found. Using defaults."
+        print_warning "auto_configure.sh not found. Using existing settings."
     fi
     echo ""
-    
-    # Create backup
-    print_info "It's recommended to create a backup before proceeding."
+
+    # Optional backup
+    print_info "It's recommended to back up your data before proceeding."
     read -p "Create backup now? (Y/n): " backup_choice
     if [[ ! "$backup_choice" =~ ^[Nn]$ ]]; then
         create_backup || print_warning "Continuing without backup..."
     fi
     echo ""
-    
-    # Show optimization levels and apply
+
+    # Optimisation level
     show_optimization_levels
-    read -p "Select optimization level (1-5) [1]: " opt_level
+    read -p "Select optimisation level (1-5) [1]: " opt_level
     opt_level=${opt_level:-1}
-    
+
     case "$opt_level" in
-        1)
-            apply_max_efficiency
-            ;;
+        1) apply_max_efficiency ;;
         2|3|4)
-            print_info "Selected configuration level $opt_level"
-            print_warning "Note: The current compose.yml has Maximum Efficiency applied"
-            print_warning "To use other levels, you'll need to manually modify compose.yml"
-            print_tip "See documentation for configuration examples"
+            print_info "Levels 2-4 require manual edits to compose.yml."
+            print_tip "See docs/ for configuration examples."
             ;;
-        5)
-            print_info "Skipping optimization. Using current configuration."
-            ;;
-        *)
-            print_warning "Invalid selection. Using current configuration."
-            ;;
+        5) print_info "Keeping current configuration." ;;
+        *) print_warning "Invalid selection. Keeping current configuration." ;;
     esac
     echo ""
-    
-    # Setup DuckDNS
-    read -p "Do you want to set up or reconfigure DuckDNS? (y/N): " setup_duckdns_choice
-    if [[ "$setup_duckdns_choice" =~ ^[Yy]$ ]]; then
-        setup_duckdns_service
-    else
-        print_info "Skipping DuckDNS setup"
-    fi
-    echo ""
-    
-    # Start Minecraft Server
-    read -p "Do you want to start the Minecraft server now? (Y/n): " start_server_choice
+
+    # Start server
+    read -p "Start the server now? (Y/n): " start_server_choice
     if [[ ! "$start_server_choice" =~ ^[Nn]$ ]]; then
         start_minecraft_server
+        echo ""
+        setup_playit
     else
-        print_info "Skipping server start"
-        print_tip "Start manually with: docker-compose up -d"
+        print_info "Skipping server start."
+        print_tip "Start manually with:  docker compose up -d"
+        echo ""
+        print_info "To set up the playit tunnel later, run:"
+        print_tip "docker compose up -d playit && docker compose logs playit"
     fi
     echo ""
-    
-    # Install Minefetch
-    if docker ps | grep -q "mc"; then
-        read -p "Install neofetch for Minefetch plugin? (Y/n): " install_neo_choice
+
+    # Neofetch for Minefetch plugin
+    if docker ps --format '{{.Names}}' | grep -q "^mc$"; then
+        read -p "Install neofetch for the Minefetch plugin? (Y/n): " install_neo_choice
         if [[ ! "$install_neo_choice" =~ ^[Nn]$ ]]; then
             install_neofetch
         else
-            print_info "Skipping neofetch installation"
-            print_warning "Minefetch plugin won't work without neofetch"
+            print_info "Skipping neofetch."
+            print_warning "Minefetch won't work without it."
         fi
         echo ""
     fi
-    
-    # Setup Aliases
-    read -p "Do you want to set up command aliases? (Y/n): " setup_aliases_choice
+
+    # Aliases
+    read -p "Set up shell aliases? (Y/n): " setup_aliases_choice
     if [[ ! "$setup_aliases_choice" =~ ^[Nn]$ ]]; then
         setup_aliases
     else
-        print_info "Skipping alias setup"
+        print_info "Skipping alias setup."
     fi
     echo ""
-    
-    # Run tests
-    if docker ps | grep -q "mc"; then
+
+    # Post-install tests
+    if docker ps --format '{{.Names}}' | grep -q "^mc$"; then
         read -p "Run post-installation tests? (Y/n): " run_tests_choice
         if [[ ! "$run_tests_choice" =~ ^[Nn]$ ]]; then
             echo ""
@@ -685,10 +645,8 @@ main() {
             echo ""
         fi
     fi
-    
-    # Show final summary
+
     display_summary
 }
 
-# Run main function
 main "$@"

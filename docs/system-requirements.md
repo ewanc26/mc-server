@@ -2,53 +2,44 @@
 
 ## General
 
-* **Docker Engine:** Version 20.10 or higher.
-* **Docker Compose V2:** Included with Docker Desktop and recommended for all installations.
-* **Minimum 4GB RAM:** Dedicated to the Minecraft server (configured in `compose.yml`). More is recommended for larger player counts or complex worlds.
-* **Sufficient Disk Space:** For world data and backups.
+- **Docker Engine:** Version 20.10 or higher (Docker Compose V2 required).
+- **RAM:** 512MB minimum available to Docker; 1-2GB recommended for comfortable headroom.
+- **Disk space:** Sufficient for world data and backups at `/Volumes/Storage/Server/MC`.
 
-## Ubuntu Server 22.04.5 LTS
+## macOS
 
-Ensure your Ubuntu server is up-to-date:
+Install **OrbStack** (recommended) or **Docker Desktop**:
 
-```bash
-sudo apt update
-sudo apt upgrade -y
-````
+- [OrbStack](https://orbstack.dev) — lighter, faster, native on Apple Silicon
+- [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)
 
-**Install Docker Engine and Docker Compose V2:**
-
-Follow the official Docker documentation:
-
-* [https://docs.docker.com/engine/install/ubuntu/](https://docs.docker.com/engine/install/ubuntu/)
-* [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
-
-Or, using `apt`:
-
-```bash
-sudo apt install docker.io -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker "$USER"
-newgrp docker
-sudo apt install docker-compose-plugin -y
-```
-
-Verify installation:
+Verify:
 
 ```bash
 docker --version
 docker compose version
 ```
 
-## macOS 15.5
+## Linux (Ubuntu 22.04+)
 
-**Install Docker Desktop for Mac:**
+Keep your system up to date:
 
-Download from:
+```bash
+sudo apt update && sudo apt upgrade -y
+```
 
-* [https://docs.docker.com/desktop/install/mac-install/](https://docs.docker.com/desktop/install/mac-install/)
+Install Docker Engine and Compose V2:
 
-Verify installation:
+```bash
+sudo apt install docker.io docker-compose-plugin -y
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+newgrp docker
+```
+
+Or follow the [official Docker docs](https://docs.docker.com/engine/install/ubuntu/).
+
+Verify:
 
 ```bash
 docker --version

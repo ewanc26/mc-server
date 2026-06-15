@@ -2,18 +2,72 @@
 
 ## Prerequisites
 
-* Ensure [System Requirements](system-requirements.md) are met.
-* Active internet connection.
+- [System requirements](system-requirements.md) met.
+- A [playit.gg](https://playit.gg) account.
 
 ## Setup
 
-### Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ewanc26/mc-server.git
 cd mc-server
 ```
 
-### Configure
+### 2. Configure the environment
 
-* Edit `compose.yml` to set server version, plugins, and other settings.
+```bash
+cp .env.example .env
+```
+
+Open `.env` and set at minimum:
+
+- `MC_VERSION` — Minecraft version to run (e.g. `1.21.1`)
+- `MC_WHITELIST` — comma-separated player UUIDs
+- `MC_OPS` — comma-separated operator UUIDs
+
+Leave `PLAYIT_SECRET` blank for now.
+
+### 3. Run auto-configuration
+
+Selects the correct Java image and plugin set for your chosen version:
+
+```bash
+MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+```
+
+### 4. Start the server
+
+```bash
+docker compose up -d
+```
+
+### 5. Claim the playit.gg tunnel
+
+On first run the playit agent prints a claim URL. Retrieve it:
+
+```bash
+docker compose logs playit
+```
+
+Open the URL, sign in, and add a **Minecraft** tunnel pointed at `mc:25565`. Copy the secret key from the dashboard and add it to `.env`:
+
+```
+PLAYIT_SECRET=your_secret_here
+```
+
+Then restart the agent:
+
+```bash
+docker compose restart playit
+```
+
+Your server address is shown in the playit dashboard. Share it with whitelisted players.
+
+### 6. (Optional) Run the setup script
+
+For a guided setup including optimisation prompts, neofetch installation, and alias configuration:
+
+```bash
+./scripts/setup_master.sh
+```

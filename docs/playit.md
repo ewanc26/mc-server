@@ -1,0 +1,57 @@
+# playit.gg Tunnel Setup
+
+[playit.gg](https://playit.gg) provides a free persistent tunnel to your Minecraft server with no port forwarding or router configuration required.
+
+## First-time setup
+
+### 1. Start the playit agent
+
+If `PLAYIT_SECRET` is not yet set in `.env`, start just the agent:
+
+```bash
+docker compose up -d playit
+```
+
+### 2. Retrieve the claim URL
+
+```bash
+docker compose logs playit
+```
+
+Look for a line containing `https://playit.gg/claim/...` and open it in your browser.
+
+### 3. Configure the tunnel
+
+Sign into playit.gg and add a tunnel with these settings:
+
+- **Type:** Minecraft Java
+- **Local address:** `mc:25565`
+
+### 4. Add the secret to `.env`
+
+Copy the secret key from the playit dashboard and add it:
+
+```
+PLAYIT_SECRET=your_secret_here
+```
+
+### 5. Restart the agent
+
+```bash
+docker compose restart playit
+```
+
+The tunnel address is shown in the playit dashboard — share it with whitelisted players.
+
+## Reclaiming a lost or expired secret
+
+If the agent can't connect, re-run the first-time setup flow:
+
+1. Remove `PLAYIT_SECRET` from `.env` (or leave it blank)
+2. `docker compose restart playit`
+3. Check `docker compose logs playit` for a new claim URL
+4. Update `PLAYIT_SECRET` in `.env` and restart again
+
+## Custom domain
+
+playit.gg supports custom domains on paid plans. Configure these in the playit dashboard — no changes needed in `.env` or `compose.yml`.

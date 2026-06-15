@@ -1,8 +1,10 @@
 # Features
 
-* **Personal Use Optimised:** This setup is primarily configured for personal use or small groups of friends, balancing performance and ease of management for private gameplay.
-* **PaperMC Server:** Optimised for performance and stability.
-* **Dockerised:** Easy setup and consistent environment across different systems.
-* **Configurable:** Easily modify server settings via `compose.yml`.
-* Persistent Data: Server worlds and configurations are stored persistently in the `./data/minecraft` directory.
-* **Dynamic DNS Integration (DuckDNS):** Companion script for automatic IP address updates, allowing players to connect via a consistent domain name.
+- **Personal use optimised:** Configured for small groups of friends, balancing performance and ease of management.
+- **PaperMC:** Performance-optimised server with plugin support.
+- **Dockerised:** Consistent environment across macOS and Linux via Docker Compose.
+- **Environment-driven config:** All settings controlled through `.env` — no need to edit `compose.yml` directly.
+- **Persistent data:** World data, plugins, and configs stored at `/Volumes/Storage/Server/MC/data`. Backups at `/Volumes/Storage/Server/MC/backups`.
+- **Public access via playit.gg:** Tunnelled connection with no port forwarding or router configuration required.
+- **Automatic backups:** Managed by the Backuper plugin.
+- **Performance plugins:** Spark for profiling, Minefetch for in-game system stats.

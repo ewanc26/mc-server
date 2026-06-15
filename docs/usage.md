@@ -6,10 +6,16 @@
 docker compose up -d
 ```
 
+This starts both the Minecraft server (`mc`) and the playit tunnel agent (`playit`).
+
 ## Viewing Logs
 
 ```bash
+# Minecraft server
 docker compose logs -f mc
+
+# playit agent
+docker compose logs -f playit
 ```
 
 ## Stopping the Server
@@ -24,14 +30,36 @@ docker compose down
 docker compose exec mc rcon-cli
 ```
 
-Type `exit` to leave the console.
+Type `exit` to leave.
 
-## Whitelisting / Operator Permissions
+## Whitelisting and Operator Permissions
 
-Set `OPS` in `compose.yml`, or use:
+Set `MC_WHITELIST` and `MC_OPS` in `.env` (comma-separated UUIDs), then restart:
 
 ```bash
-docker compose exec mc rcon-cli op <username>
+docker compose restart mc
 ```
 
-Use `whitelist add <username>` if the whitelist is enabled.
+Or manage live via the console:
+
+```bash
+docker compose exec mc rcon-cli
+# then:
+whitelist add <username>
+op <username>
+```
+
+## Checking Server Performance
+
+```bash
+docker stats mc
+```
+
+In-game:
+
+```
+/tps          — current TPS
+/spark profiler start — profile for 60s then generate report
+/minefetch    — system info
+/loadfetch    — CPU/RAM graphs
+```

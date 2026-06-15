@@ -60,10 +60,9 @@ BACKUPER_URL="https://github.com/DVDishka/Backuper/releases/download/4.0.6/Backu
 MINEFETCH_URL="https://github.com/mlijekome/minefetch/releases/download/Release/Minefetch-1.0-SNAPSHOT.jar"
 LUCKPERMS_URL="https://download.luckperms.net/1554/bukkit/loader/LuckPerms-Bukkit-5.4.151.jar"
 SPARK_URL="https://spark.lucko.me/download/bukkit/spark-1.10.117.jar"
-TCPSHIELD_URL="https://github.com/TCPShield/RealIP/releases/download/2.8.1/TCPShield-2.8.1.jar"
 
 # Combine plugin URLs
-PLUGINS="${TCPSHIELD_URL},${BACKUPER_URL},${VIAVERSION_URL},${MINEFETCH_URL},${LUCKPERMS_URL},${SPARK_URL}"
+PLUGINS="${BACKUPER_URL},${VIAVERSION_URL},${MINEFETCH_URL},${LUCKPERMS_URL},${SPARK_URL}"
 
 # Generate/update .env file
 ENV_FILE="$(dirname "$0")/../.env"
@@ -117,7 +116,7 @@ echo ""
 echo -e "Configuration summary:"
 echo -e "  Minecraft Version: ${YELLOW}${MC_VERSION}${NC}"
 echo -e "  Java Version:      ${YELLOW}${JAVA_VERSION}${NC}"
-echo -e "  Plugins:           ViaVersion, Backuper, TCPShield, Minefetch, LuckPerms, Spark"
+echo -e "  Plugins:           ViaVersion, Backuper, Minefetch, LuckPerms, Spark"
 echo ""
 echo -e "To use a different Minecraft version, run:"
 echo -e "  ${YELLOW}MC_VERSION=1.20.4 $0${NC}"

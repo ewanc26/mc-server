@@ -1,77 +1,129 @@
 # Ewan's Minecraft Server
 
-This repository contains the necessary files to set up and run Ewan's Minecraft Server using Docker Compose. The server is configured with PaperMC, several Spigot resources, and a RealIP plugin. It also includes a companion script to set up dynamic DNS using DuckDNS.
-
-This setup is primarily intended for personal use or small groups of friends.
+A Dockerised PaperMC server configured for small groups, with tunnelled public access via [playit.gg](https://playit.gg) — no port forwarding required.
 
 ## Table of Contents
 
 * [License](./LICENSE)
 * [Features](./docs/features.md)
 * [System Requirements](./docs/system-requirements.md)
-* [Getting Started](./docs/getting-started.md)
-* [DuckDNS Setup (Optional)](./docs/duckdns.md)
+* [Getting Started](#getting-started)
+* [playit.gg Tunnel Setup](./docs/duckdns.md)
 * [Usage](./docs/usage.md)
 * [Maintenance](./docs/maintenance.md)
 * [Troubleshooting](./docs/troubleshooting.md)
 * [Contributing](./docs/contributing.md)
 * [Contact](./docs/contact.md)
-* [Rules of my server](./docs/rules.md)
+* [Rules](./docs/rules.md)
 
-### How to Use the Scripts
+## Getting Started
 
-This project includes several utility scripts located in the `scripts/` directory. These scripts are designed to help you manage your Minecraft server.
+### Prerequisites
 
-1. **`setup_master.sh`**: This is the main setup script. Run it first to ensure all prerequisites are met and to configure your server. This script will also offer to set up a convenient alias for the server status script.
+* Docker Desktop (or OrbStack on macOS)
+* A [playit.gg](https://playit.gg) account
 
-    ```bash
-    ./scripts/setup_master.sh
-    ```
+### 1. Clone the repository
 
-2. **`server_status_mac.sh` / `server_status_linux.sh`**: These scripts are OS-specific and allow you to start, stop, and check the status of your Minecraft server. If you allowed `setup_master.sh` to create the alias, you can use `mcserver` followed by the command.
+```bash
+git clone https://github.com/ewanc26/mc-server.git
+cd mc-server
+```
 
-    * **Using the `mcserver` alias (recommended after running `setup_master.sh`):
+### 2. Configure the environment
 
-        * **Start the server:**
+```bash
+cp .env.example .env
+```
 
-            ```bash
-            mcserver start
-            ```
+Open `.env` and set at minimum:
 
-        * **Stop the server:**
+* `MC_VERSION` — Minecraft version to run (e.g. `1.21.1`)
+* `PLAYIT_SECRET` — leave blank for now; see step 4
 
-            ```bash
-            mcserver stop
-            ```
+Then run the auto-configuration script to select the correct Java image and plugins:
 
-        * **Check server status:**
+```bash
+MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+```
 
-            ```bash
-            mcserver status
-            ```
+### 3. Start the server
 
-    * **Directly running the scripts (if alias is not set up or preferred):
+```bash
+docker compose up -d
+```
 
-        * **Start the server:**
+### 4. Claim the playit.gg tunnel
 
-            ```bash
-            ./scripts/server_status_mac.sh start   # For macOS
-            ./scripts/server_status_linux.sh start # For Linux
-            ```
+On first run without a `PLAYIT_SECRET`, the playit agent prints a claim URL:
 
-        * **Stop the server:**
+```bash
+docker compose logs playit
+```
 
-            ```bash
-            ./scripts/server_status_mac.sh stop    # For macOS
-            ./scripts/server_status_linux.sh stop  # For Linux
-            ```
+Open the URL, sign into playit.gg, and add a **Minecraft** tunnel pointed at `mc:25565`. Copy the secret key from the dashboard into `.env`:
 
-        * **Check server status:**
+```
+PLAYIT_SECRET=your_secret_here
+```
 
-            ```bash
-             ./scripts/server_status_mac.sh status   # For macOS
-             ./scripts/server_status_linux.sh status # For Linux
-             ```
+Then restart the agent:
+
+```bash
+docker compose restart playit
+```
+
+Your server is now reachable at the address shown in the playit dashboard — no port forwarding or DNS configuration needed.
+
+### 5. Whitelist players
+
+Add player UUIDs (comma-separated) to `MC_WHITELIST` and `MC_OPS` in `.env`, then restart:
+
+```bash
+docker compose restart mc
+```
+
+Or manage in-game via RCON:
+
+```bash
+docker compose exec mc rcon-cli
+```
+
+## Scripts
+
+Utility scripts live in `scripts/`.
+
+**`setup_master.sh`** — main setup script; run this first.
+
+```bash
+./scripts/setup_master.sh
+```
+
+**`auto_configure.sh`** — selects the correct Java image and plugin set for a given Minecraft version.
+
+```bash
+MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+```
+
+**`server_status_mac.sh` / `server_status_linux.sh`** — start, stop, and check server status. `setup_master.sh` can configure an `mcserver` alias for these.
+
+```bash
+mcserver start
+mcserver stop
+mcserver status
+```
+
+## Data
+
+Server world data and backups are stored at:
+
+```
+/Volumes/Storage/Server/MC/
+├── data/     # world, plugins, configs
+└── backups/  # automated backups via Backuper plugin
+```
+
+These paths can be overridden in `.env` via `MC_DATA_DIR` and `MC_BACKUP_DIR`.
 
 ## ☕ Support
 
