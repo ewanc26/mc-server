@@ -1,3 +1,8 @@
+if ! command -v brew > /dev/null 2>&1; then
+  echo "Homebrew is not installed. Please install it with: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
 if ! brew list --cask orbstack > /dev/null 2>&1; then
   echo "OrbStack is not installed. Please install it with: brew install orbstack"
   # brew install orbstack
