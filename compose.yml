@@ -21,6 +21,7 @@ services:
     ports:
       - "127.0.0.1:${MC_SERVER_PORT:-25565}:25565"
       - "127.0.0.1:${MC_RCON_PORT:-25575}:25575"
+      - "127.0.0.1:${MC_VOICE_PORT:-24454}:24454/udp"
     
     # Optimized memory limits (6GB)
     deploy:
@@ -49,7 +50,7 @@ services:
       
       # Server Identity
       SERVER_NAME: "${MC_SERVER_NAME:-Ewan's Minecraft Server}"
-      MOTD: "${MC_MOTD:-Auto-Optimized for Your Hardware}"
+      MOTD: "${MC_MOTD:-A small private server for friends}"
       
       # Server Settings
       DIFFICULTY: "${MC_DIFFICULTY:-easy}"
@@ -111,8 +112,12 @@ services:
       # Configured via auto_configure.sh
       PLUGINS: "${MC_PLUGINS:-}"
       
+      # Modrinth projects — auto-resolves the correct build for the running
+      # MC version/loader, so it doesn't go stale like pinned jar URLs do
+      MODRINTH_PROJECTS: "${MC_MODRINTH_PROJECTS:-luckperms,simple-voice-chat}"
+      
       # Spiget Resources
-      SPIGET_RESOURCES: "${MC_SPIGET_RESOURCES:-1997,113050}"
+      SPIGET_RESOURCES: "${MC_SPIGET_RESOURCES:-1997}"
       
       # Paper Global Configuration
       PAPER_GLOBAL_CONFIG: |
@@ -295,11 +300,11 @@ services:
       - mc
 
   playit:
-    image: ghcr.io/playit-cloud/playit-agent:0.15
-    platform: linux/amd64
+    image: ghcr.io/playit-cloud/playit-agent:0.17
     container_name: playit-agent
+    network_mode: host
     environment:
-      PLAYIT_SECRET: "${PLAYIT_SECRET}"
+      - SECRET_KEY=${PLAYIT_SECRET}
     volumes:
       - ./playit:/etc/playit
     restart: unless-stopped
