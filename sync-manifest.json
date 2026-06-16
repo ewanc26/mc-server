@@ -1,0 +1,28 @@
+[
+  {
+    "label": "Whitelist",
+    "source_file": "whitelist.json",
+    "env_key": "MC_WHITELIST",
+    "handler": "uuid_list"
+  },
+  {
+    "label": "Ops",
+    "source_file": "ops.json",
+    "env_key": "MC_OPS",
+    "handler": "uuid_list"
+  },
+  {
+    "label": "Banned Players",
+    "source_file": "banned-players.json",
+    "env_key": "MC_BANNED_PLAYERS",
+    "handler": "uuid_list",
+    "required_flag": "bans"
+  },
+  {
+    "label": "Banned IPs",
+    "source_file": "banned-ips.json",
+    "env_key": "MC_BANNED_IPS",
+    "handler": "ip_list",
+    "required_flag": "bans"
+  }
+]
