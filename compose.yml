@@ -280,6 +280,20 @@ services:
       - "com.minecraft.version=${MC_VERSION:-1.21.1}"
       - "com.minecraft.optimization=${MC_OPTIMIZATION_TIER:-auto}"
 
+  backups:
+    image: itzg/mc-backup
+    container_name: mc-backup
+    environment:
+      BACKUP_INTERVAL: "6h"
+      INITIAL_DELAY: "2m"
+      PRUNE_BACKUPS_DAYS: 7
+    volumes:
+      - "${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}:/data:ro"
+      - "${MC_BACKUP_DIR:-/Volumes/Storage/Server/MC/backups}:/backups"
+    restart: unless-stopped
+    depends_on:
+      - mc
+
   playit:
     image: ghcr.io/playit-cloud/playit-agent:0.15
     platform: linux/amd64
