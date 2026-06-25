@@ -2,49 +2,22 @@
 
 # Master Setup Script for Ewan's Minecraft Server
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m' # No Color
-
-# Configuration variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Source shared utilities
+source "$SERVER_DIR/lib/shared.sh"
+
+# Source optional lib modules
+source "$SERVER_DIR/lib/docker.sh"
+source "$SERVER_DIR/lib/backup.sh"
+source "$SERVER_DIR/lib/neofetch.sh"
+source "$SERVER_DIR/lib/post_install.sh"
+source "$SERVER_DIR/lib/aliases.sh"
+
 COMPOSE_FILE="$SERVER_DIR/compose.yml"
 BACKUP_DIR="$SERVER_DIR/data_backups"
 CONFIG_APPLIED=false
-
-# ---------------------------------------------------------------------------
-# Output helpers
-# ---------------------------------------------------------------------------
-
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_header() {
-    echo -e "${CYAN}[====]${NC} $1"
-}
-
-print_tip() {
-    echo -e "${MAGENTA}[TIP]${NC} $1"
-}
 
 print_banner() {
     echo -e "${CYAN}"
@@ -56,59 +29,6 @@ print_banner() {
 ╚═══════════════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"
-}
-
-# ---------------------------------------------------------------------------
-# Environment
-# ---------------------------------------------------------------------------
-
-detect_os() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        OS="macOS"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        OS="Linux"
-    else
-        OS="Unknown"
-    fi
-}
-
-detect_linux_distro() {
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        DISTRO="$ID"
-    elif [ -f /etc/redhat-release ]; then
-        DISTRO="rhel"
-    elif [ -f /etc/debian_version ]; then
-        DISTRO="debian"
-    else
-        DISTRO="unknown"
-    fi
-}
-
-check_docker() {
-    print_info "Checking Docker installation..."
-    if ! command -v docker &> /dev/null; then
-        print_error "Docker is not installed."
-        print_info "Please install Docker Desktop from https://www.docker.com/products/docker-desktop/"
-        exit 1
-    fi
-
-    if ! docker info &> /dev/null; then
-        print_error "Docker is installed but not running."
-        print_info "Please start Docker Desktop and try again."
-        exit 1
-    fi
-    print_success "Docker is installed and running."
-}
-
-check_docker_compose() {
-    print_info "Checking Docker Compose installation..."
-    if ! docker compose version &> /dev/null; then
-        print_error "Docker Compose V2 is not available."
-        print_info "Ensure Docker Desktop is up to date."
-        exit 1
-    fi
-    print_success "Docker Compose is available."
 }
 
 # ---------------------------------------------------------------------------
@@ -148,41 +68,6 @@ setup_env() {
         export MC_VERSION="${input_version:-1.21.1}"
     else
         print_info "MC_VERSION: $MC_VERSION"
-    fi
-}
-
-# ---------------------------------------------------------------------------
-# Backup
-# ---------------------------------------------------------------------------
-
-create_backup() {
-    print_header "Creating Backup"
-
-    local data_dir="${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}"
-
-    if [ ! -d "$data_dir" ]; then
-        print_warning "No data directory found at $data_dir. Skipping backup."
-        return 0
-    fi
-
-    mkdir -p "$BACKUP_DIR"
-
-    local backup_name="data_backup_$(date +%Y%m%d_%H%M%S)"
-    local backup_path="$BACKUP_DIR/$backup_name"
-
-    print_info "Creating backup: $backup_name"
-    print_info "This may take a few minutes..."
-
-    if cp -r "$data_dir" "$backup_path"; then
-        print_success "Backup created at: $backup_path"
-        if [ -f "$COMPOSE_FILE" ]; then
-            cp "$COMPOSE_FILE" "$backup_path/compose.yml.backup"
-            print_success "compose.yml backed up as well."
-        fi
-        return 0
-    else
-        print_error "Failed to create backup."
-        return 1
     fi
 }
 
@@ -247,54 +132,6 @@ apply_max_efficiency() {
 
     CONFIG_APPLIED=true
     return 0
-}
-
-# ---------------------------------------------------------------------------
-# Neofetch (for Minefetch plugin)
-# ---------------------------------------------------------------------------
-
-install_neofetch() {
-    print_header "Installing Neofetch for Minefetch Plugin"
-
-    if ! docker ps | grep -q "^.*mc$"; then
-        print_warning "Server container 'mc' is not running. Start the server first."
-        return 1
-    fi
-
-    print_info "Installing neofetch in server container..."
-
-    local container_os
-    container_os=$(docker exec mc bash -c "grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '\"'" 2>/dev/null)
-
-    case "$container_os" in
-        ubuntu|debian)
-            docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
-            ;;
-        fedora|rhel|centos|rocky|almalinux)
-            if docker exec mc bash -c "command -v dnf" &> /dev/null; then
-                docker exec mc bash -c "dnf install -y neofetch" > /dev/null 2>&1
-            else
-                docker exec mc bash -c "yum install -y neofetch" > /dev/null 2>&1
-            fi
-            ;;
-        *)
-            print_warning "Unknown container OS ($container_os). Attempting apt-get..."
-            docker exec mc bash -c "apt-get update -qq && apt-get install -y neofetch" > /dev/null 2>&1
-            ;;
-    esac
-
-    if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
-        local version
-        version=$(docker exec mc neofetch --version 2>&1 | head -1)
-        print_success "Neofetch installed: $version"
-        echo "----------------------------------------"
-        docker exec mc neofetch --off --stdout | head -10
-        echo "----------------------------------------"
-        return 0
-    else
-        print_error "Failed to install neofetch in container."
-        return 1
-    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -363,120 +200,6 @@ setup_playit() {
     print_tip "4. Add it to .env:  PLAYIT_SECRET=your_secret_here"
     print_tip "5. Run:  docker compose restart playit"
     echo ""
-}
-
-# ---------------------------------------------------------------------------
-# Shell aliases
-# ---------------------------------------------------------------------------
-
-setup_aliases() {
-    print_header "Setting up Command Aliases"
-
-    local shell_profile=""
-    local alias_script=""
-
-    if [ "$OS" == "macOS" ]; then
-        shell_profile="${HOME}/.zshrc"
-        [ ! -f "$shell_profile" ] && shell_profile="${HOME}/.bash_profile"
-        alias_script="server_status_mac.sh"
-    elif [ "$OS" == "Linux" ]; then
-        shell_profile="${HOME}/.bashrc"
-        [ ! -f "$shell_profile" ] && shell_profile="${HOME}/.zshrc"
-        alias_script="server_status_linux.sh"
-    fi
-
-    if [ -z "$shell_profile" ]; then
-        print_warning "Could not find shell profile. Add aliases manually."
-        return 1
-    fi
-
-    if grep -q "alias mcserver=" "$shell_profile" 2>/dev/null; then
-        print_info "Aliases already exist in $shell_profile."
-        return 0
-    fi
-
-    {
-        echo ""
-        echo "# Minecraft Server Aliases"
-        echo "alias mcserver='$SCRIPT_DIR/$alias_script'"
-        echo "alias mclog='docker compose -f $COMPOSE_FILE logs -f mc'"
-        echo "alias mcstats='docker stats mc'"
-        echo "alias mcstart='docker compose -f $COMPOSE_FILE up -d'"
-        echo "alias mcstop='docker compose -f $COMPOSE_FILE down'"
-        echo "alias mcrestart='docker compose -f $COMPOSE_FILE restart'"
-    } >> "$shell_profile"
-
-    print_success "Aliases added to $shell_profile."
-    print_info "Available aliases: mcserver, mclog, mcstats, mcstart, mcstop, mcrestart"
-    print_tip "Run:  source $shell_profile  (or restart your terminal)"
-}
-
-# ---------------------------------------------------------------------------
-# Post-install tests
-# ---------------------------------------------------------------------------
-
-run_post_install_tests() {
-    print_header "Running Post-Installation Tests"
-
-    local tests_passed=0
-    local tests_total=5
-
-    # Test 1: mc container running
-    print_info "Test 1/5: mc container"
-    if docker ps --format '{{.Names}}' | grep -q "^mc$"; then
-        print_success "✓ mc container is running"
-        ((tests_passed++))
-    else
-        print_error "✗ mc container is not running"
-    fi
-
-    # Test 2: Memory usage
-    print_info "Test 2/5: Memory usage"
-    local mem_usage
-    mem_usage=$(docker stats mc --no-stream --format "{{.MemUsage}}" 2>/dev/null | awk '{print $1}')
-    if [ -n "$mem_usage" ]; then
-        print_success "✓ Memory usage: $mem_usage"
-        ((tests_passed++))
-    else
-        print_error "✗ Could not read memory usage"
-    fi
-
-    # Test 3: Neofetch
-    print_info "Test 3/5: Neofetch"
-    if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
-        print_success "✓ Neofetch is installed"
-        ((tests_passed++))
-    else
-        print_warning "✗ Neofetch not installed — Minefetch won't work"
-    fi
-
-    # Test 4: playit agent
-    print_info "Test 4/5: playit agent"
-    sleep 2
-    if docker ps --format '{{.Names}}' | grep -q "^playit-agent$"; then
-        print_success "✓ playit agent is running"
-        ((tests_passed++))
-    else
-        print_warning "✗ playit agent not running — check PLAYIT_SECRET in .env"
-    fi
-
-    # Test 5: Server done loading
-    print_info "Test 5/5: Server ready"
-    if docker compose logs mc 2>/dev/null | grep -q "Done"; then
-        print_success "✓ Server is ready"
-        ((tests_passed++))
-    else
-        print_warning "✗ Server still initialising — wait 1-2 minutes and recheck"
-    fi
-
-    echo ""
-    print_info "Tests passed: $tests_passed/$tests_total"
-
-    if [ $tests_passed -ge 3 ]; then
-        print_success "Setup looks good! ✓"
-    else
-        print_warning "Some tests failed. Check the output above."
-    fi
 }
 
 # ---------------------------------------------------------------------------
