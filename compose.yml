@@ -11,7 +11,7 @@
 services:
   mc:
     # Optimized for arm64
-    image: ${MC_IMAGE:-itzg/minecraft-server:java21}
+    image: ${MC_IMAGE:-itzg/minecraft-server:java25}
     container_name: ${MC_CONTAINER_NAME:-mc}
     tty: true
     stdin_open: true
@@ -41,15 +41,15 @@ services:
       EULA: "${MC_EULA:-TRUE}"
       TYPE: "${MC_TYPE:-PAPER}"
       # Minecraft version (auto-configured by setup script)
-      VERSION: "${MC_VERSION:?Minecraft version not set. Run ./scripts/auto_configure.sh}"
+      VERSION: "${MC_VERSION:-26.1}"
       
-      # Dynamic Memory Configuration (Optimized for 6GB total)
-      INIT_MEMORY: "4G"
-      MAX_MEMORY: "6G"
+      # Dynamic Memory Configuration
+      INIT_MEMORY: "${MC_INIT_MEMORY:-256M}"
+      MAX_MEMORY: "${MC_MAX_MEMORY:-1280M}"
       
       # JVM Optimization (Aikar's optimized flags)
       USE_AIKAR_FLAGS: "true"
-      JVM_XX_OPTS: "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikar.new.flags=true"
+      JVM_XX_OPTS: "${MC_JVM_OPTS:--XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:+UseStringDeduplication}"
       
       # Server Identity
       SERVER_NAME: "${MC_SERVER_NAME:-Ewan's Minecraft Server}"
@@ -69,8 +69,8 @@ services:
       PLAYER_IDLE_TIMEOUT: "${MC_IDLE_TIMEOUT:-5}"
       ENABLE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
       ENFORCE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
-      WHITELIST: "${MC_WHITELIST:-424cd779-3028-42b2-bbe0-9d140ded1e7e}"
-      OPS: "${MC_OPS:-252bd633-504d-439b-8a5a-d99283f4b5a9}"
+      WHITELIST: "${MC_WHITELIST:-424cd779-3028-42b2-bbe0-9d140ded1e7e,252bd633-504d-439b-8a5a-d99283f4b5a9,aed95856-af9d-4973-8c62-e6ee98cef7f5}"
+      OPS: "${MC_OPS:-252bd633-504d-439b-8a5a-d99283f4b5a9,424cd779-3028-42b2-bbe0-9d140ded1e7e,aed95856-af9d-4973-8c62-e6ee98cef7f5}"
       
       # Performance Settings
       VIEW_DISTANCE: "${MC_VIEW_DISTANCE:-4}"
@@ -97,6 +97,7 @@ services:
       # Server Management
       ENABLE_RCON: "${MC_ENABLE_RCON:-false}"
       RCON_PASSWORD: "${MC_RCON_PASSWORD:-}"
+      OVERRIDE_SERVER_PROPERTIES: "true"
       ENABLE_QUERY: "${MC_ENABLE_QUERY:-false}"
       ENABLE_COMMAND_BLOCK: "${MC_ENABLE_COMMAND_BLOCK:-false}"
       
@@ -111,13 +112,11 @@ services:
       PREVIEWS_CHAT: "${MC_PREVIEWS_CHAT:-true}"
       ENFORCE_SECURE_PROFILE: "${MC_ENFORCE_SECURE_PROFILE:-false}"
       
-      # Plugins (Auto-selected based on Minecraft version)
-      # Configured via auto_configure.sh
+      # Plugins
       PLUGINS: ""
       
-      # Modrinth projects — auto-resolves the correct build for the running
-      # MC version/loader, so it doesn't go stale like pinned jar URLs do
-      MODRINTH_PROJECTS: "${MC_MODRINTH_PROJECTS:-luckperms,simple-voice-chat}"
+      # Modrinth projects — auto-resolves the correct build for the running loader
+      MODRINTH_PROJECTS: "${MC_MODRINTH_PROJECTS:-luckperms,simple-voice-chat,better-veinminer,treetimber,viaversion,viabackwards,chunky,axgraves}"
       
       # Spiget Resources
       SPIGET_RESOURCES: "${MC_SPIGET_RESOURCES:-1997}"
@@ -285,7 +284,7 @@ services:
     labels:
       - "com.minecraft.server=true"
       - "com.minecraft.type=${MC_TYPE:-PAPER}"
-      - "com.minecraft.version=${MC_VERSION:-1.21.1}"
+      - "com.minecraft.version=${MC_VERSION:-26.1}"
       - "com.minecraft.optimization=${MC_OPTIMIZATION_TIER:-auto}"
 
   backups:
@@ -295,6 +294,9 @@ services:
       BACKUP_INTERVAL: "6h"
       INITIAL_DELAY: "2m"
       PRUNE_BACKUPS_DAYS: 7
+      RCON_HOST: mc
+      RCON_PORT: "25575"
+      RCON_PASSWORD: "${MC_RCON_PASSWORD:-r+VeDQzfYBhiUfVhVK8DNoK9}"
     volumes:
       - "${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}:/data:ro"
       - "${MC_BACKUP_DIR:-/Volumes/Storage/Server/MC/backups}:/backups"
