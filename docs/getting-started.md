@@ -30,7 +30,7 @@ Leave `PLAYIT_SECRET` blank for now.
 
 ### 3. Run auto-configuration
 
-Selects the correct Java image and plugin set for your chosen version:
+Selects the correct Java image and JVM flags for your chosen version. Plugins aren't part of this step — they're managed separately via `MC_MODRINTH_PROJECTS` / `MC_SPIGET_RESOURCES` in `.env`:
 
 ```bash
 MC_VERSION=1.21.1 ./scripts/auto_configure.sh
@@ -56,10 +56,10 @@ Open the URL, sign in, and add a **Minecraft** tunnel pointed at `mc:25565`. Cop
 PLAYIT_SECRET=your_secret_here
 ```
 
-Then restart the agent:
+Then apply it (a plain `restart` won't pick up the new secret — the container needs recreating):
 
 ```bash
-docker compose restart playit
+docker compose up -d playit
 ```
 
 Your server address is shown in the playit dashboard. Share it with whitelisted players.

@@ -294,6 +294,12 @@ services:
       BACKUP_INTERVAL: "6h"
       INITIAL_DELAY: "2m"
       PRUNE_BACKUPS_DAYS: 7
+      # Skip scheduling the next backup while no one's online — nothing in
+      # the world can have changed. Rechecks every
+      # PLAYERS_ONLINE_CHECK_INTERVAL until a player joins, then resumes
+      # the normal BACKUP_INTERVAL cadence.
+      PAUSE_IF_NO_PLAYERS: "${MC_BACKUP_PAUSE_IF_NO_PLAYERS:-true}"
+      PLAYERS_ONLINE_CHECK_INTERVAL: "${MC_BACKUP_PLAYERS_CHECK_INTERVAL:-5m}"
       RCON_HOST: mc
       RCON_PORT: "25575"
       RCON_PASSWORD: "${MC_RCON_PASSWORD:-r+VeDQzfYBhiUfVhVK8DNoK9}"

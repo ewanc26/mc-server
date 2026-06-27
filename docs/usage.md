@@ -34,10 +34,10 @@ Type `exit` to leave.
 
 ## Whitelisting and Operator Permissions
 
-Set `MC_WHITELIST` and `MC_OPS` in `.env` (comma-separated UUIDs), then restart:
+Set `MC_WHITELIST` and `MC_OPS` in `.env` (comma-separated UUIDs), then apply it (a plain `restart` won't pick up the new values — the container needs recreating):
 
 ```bash
-docker compose restart mc
+docker compose up -d mc
 ```
 
 Or manage live via the console:

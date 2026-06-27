@@ -41,7 +41,7 @@ Open `.env` and set at minimum:
 * `MC_VERSION` — Minecraft version to run (e.g. `1.21.1`)
 * `PLAYIT_SECRET` — leave blank for now; see step 4
 
-Then run the auto-configuration script to select the correct Java image and plugins:
+Then run the auto-configuration script to select the correct Java image and JVM flags (plugins are managed separately, via `MC_MODRINTH_PROJECTS` / `MC_SPIGET_RESOURCES` in `.env`):
 
 ```bash
 MC_VERSION=1.21.1 ./scripts/auto_configure.sh
@@ -67,20 +67,20 @@ Open the URL, sign into playit.gg, and add a **Minecraft** tunnel pointed at `mc
 PLAYIT_SECRET=your_secret_here
 ```
 
-Then restart the agent:
+Then apply it (a plain `restart` won't pick up the new secret — the container needs recreating):
 
 ```bash
-docker compose restart playit
+docker compose up -d playit
 ```
 
 Your server is now reachable at the address shown in the playit dashboard — no port forwarding or DNS configuration needed.
 
 ### 5. Whitelist players
 
-Add player UUIDs (comma-separated) to `MC_WHITELIST` and `MC_OPS` in `.env`, then restart:
+Add player UUIDs (comma-separated) to `MC_WHITELIST` and `MC_OPS` in `.env`, then apply it (a plain `restart` won't pick up the new values — the container needs recreating):
 
 ```bash
-docker compose restart mc
+docker compose up -d mc
 ```
 
 Or manage in-game via RCON:
@@ -99,7 +99,7 @@ Utility scripts live in `scripts/`.
 ./scripts/setup_master.sh
 ```
 
-**`auto_configure.sh`** — selects the correct Java image and plugin set for a given Minecraft version.
+**`auto_configure.sh`** — selects the correct Java image and JVM flags for a given Minecraft version.
 
 ```bash
 MC_VERSION=1.21.1 ./scripts/auto_configure.sh
@@ -120,7 +120,7 @@ Server world data and backups are stored at:
 ```
 /Volumes/Storage/Server/MC/
 ├── data/     # world, plugins, configs
-└── backups/  # automated backups via Backuper plugin
+└── backups/  # automated backups via the mc-backup sidecar container
 ```
 
 These paths can be overridden in `.env` via `MC_DATA_DIR` and `MC_BACKUP_DIR`.

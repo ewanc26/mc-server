@@ -20,22 +20,22 @@ docker compose up -d
 
 ## Plugin Management
 
-Plugins are configured in `.env` via two variables:
+Plugins are configured directly in `.env` via two variables — `scripts/auto_configure.sh` doesn't touch either of these; it only sets the Java image, `MC_VERSION`, and JVM flags:
 
-- `MC_SPIGET_RESOURCES` — SpigotMC resource IDs (e.g. `1997` for ProtocolLib)
-- `MC_PLUGINS` — direct download URLs for plugin JARs
+- `MC_MODRINTH_PROJECTS` — comma-separated Modrinth slugs (e.g. `luckperms,coreprotect`). The image auto-resolves the correct build for the running loader and `MC_VERSION` on every container start. Append `?` to a slug (e.g. `bluemap?`) to mark it optional, so a missing build for your version logs a warning instead of failing the whole startup.
+- `MC_SPIGET_RESOURCES` — SpigotMC resource IDs (e.g. `1997` for ProtocolLib), downloaded via Spiget.
 
-The auto-configuration script (`scripts/auto_configure.sh`) sets these for the selected Minecraft version. To add a plugin manually, append its URL to `MC_PLUGINS` in `.env` and restart:
+To add a plugin, append its slug (or resource ID) to the relevant variable in `.env` and apply it (a plain `restart` won't pick up the new value — the container needs recreating):
 
 ```bash
-docker compose restart mc
+docker compose up -d mc
 ```
 
 Or drop a `.jar` directly into `/Volumes/Storage/Server/MC/data/plugins` and restart.
 
 ## Backups
 
-Backups are written to `/Volumes/Storage/Server/MC/backups` by the Backuper plugin automatically.
+Backups are written to `/Volumes/Storage/Server/MC/backups` by the `mc-backup` sidecar container automatically (every 6h, 7-day retention, via RCON — see the `backups` service in `compose.yml`). Backups pause while no players are online (`PAUSE_IF_NO_PLAYERS`), since nothing in the world can change with nobody there — it rechecks every `PLAYERS_ONLINE_CHECK_INTERVAL` (5m by default) and resumes the normal cadence once someone joins.
 
 For a manual snapshot before making changes, the setup script can create one:
 

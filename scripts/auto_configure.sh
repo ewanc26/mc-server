@@ -1,18 +1,27 @@
 #!/bin/bash
 
 # Auto-Configuration Script for Minecraft Server
-# Automatically selects optimal Java version and plugin versions based on MC version
+#
+# Selects the optimal Java image and JVM flags for a given Minecraft version,
+# and safely updates ONLY those keys in .env. Every other line in .env
+# (PLAYIT_SECRET, RCON password, whitelist/ops, MC_MODRINTH_PROJECTS,
+# MC_SPIGET_RESOURCES, etc.) is left untouched.
+#
+# Plugins are no longer selected by this script. compose.yml never reads the
+# old MC_PLUGINS variable this script used to write — plugin selection lives
+# directly in .env / .env.example via MC_MODRINTH_PROJECTS and
+# MC_SPIGET_RESOURCES. Edit those directly to add or remove plugins.
 
-set -e
+set -euo pipefail
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Get Minecraft version from environment or use default
 MC_VERSION="${MC_VERSION:-1.21.1}"
+RESET_MEMORY="${1:-}"
+ENV_FILE="$(dirname "$0")/../.env"
 
 echo -e "${GREEN}[AUTO-CONFIG]${NC} Configuring for Minecraft version: ${MC_VERSION}"
 
@@ -26,9 +35,6 @@ version_lt() {
     # Returns 0 (true) if $1 < $2
     ! version_ge "$1" "$2"
 }
-
-# Extract major.minor version
-MC_MAJOR_MINOR=$(echo "$MC_VERSION" | grep -oE '^[0-9]+\.[0-9]+')
 
 # Determine optimal Java version
 if version_lt "$MC_VERSION" "1.12"; then
@@ -51,64 +57,43 @@ else
     echo -e "${YELLOW}[INFO]${NC} Minecraft 1.22+ detected → Using Java 21 (LTS)"
 fi
 
-# Determine compatible plugin versions
-echo -e "${GREEN}[AUTO-CONFIG]${NC} Selecting compatible plugins..."
-
-# Latest stable versions for 1.21.1
-VIAVERSION_URL="https://github.com/ViaVersion/ViaVersion/releases/download/5.9.1/ViaVersion-5.9.1.jar"
-BACKUPER_URL="https://github.com/DVDishka/Backuper/releases/download/4.0.6/Backuper-4.0.6.jar"
-MINEFETCH_URL="https://github.com/mlijekome/minefetch/releases/download/Release/Minefetch-1.0-SNAPSHOT.jar"
-LUCKPERMS_URL="https://download.luckperms.net/1554/bukkit/loader/LuckPerms-Bukkit-5.4.151.jar"
-SPARK_URL="https://spark.lucko.me/download/bukkit/spark-1.10.117.jar"
-
-# Combine plugin URLs
-PLUGINS="${BACKUPER_URL},${VIAVERSION_URL},${MINEFETCH_URL},${LUCKPERMS_URL},${SPARK_URL}"
-
-# Generate/update .env file
-ENV_FILE="$(dirname "$0")/../.env"
-
-echo -e "${GREEN}[AUTO-CONFIG]${NC} Updating .env file with optimal settings..."
-
-# Create or update .env file
-cat > "$ENV_FILE" << EOF
-# Auto-generated configuration for Minecraft ${MC_VERSION}
-# Generated on: $(date)
-
-# Optimal Java version for Minecraft ${MC_VERSION}
-MC_IMAGE_TAG=${JAVA_VERSION}
-
-# Minecraft server version
-MC_VERSION=${MC_VERSION}
-
-# Auto-selected compatible plugins
-MC_PLUGINS=${PLUGINS}
-
-# JVM Options (optimized for ${JAVA_VERSION})
-EOF
-
-# Add Java-version-specific JVM flags
+# JVM flags (Aikar's, with the legacy biased-locking flag only on older Java)
 if [ "$JAVA_VERSION" = "java21" ] || [ "$JAVA_VERSION" = "java17" ]; then
-    cat >> "$ENV_FILE" << 'EOF'
-MC_JVM_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:+UseStringDeduplication
-EOF
+    JVM_OPTS='-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:+UseStringDeduplication'
 else
-    # Older Java versions include biased locking
-    cat >> "$ENV_FILE" << 'EOF'
-MC_JVM_OPTS=-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-UseBiasedLocking -XX:+UseStringDeduplication
-EOF
+    JVM_OPTS='-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-UseBiasedLocking -XX:+UseStringDeduplication'
 fi
 
-# Add memory settings if not already set
-if ! grep -q "MC_INIT_MEMORY" "$ENV_FILE" 2>/dev/null || [ "$1" = "--reset-memory" ]; then
-    cat >> "$ENV_FILE" << 'EOF'
+# Set or update a single KEY=value line in $ENV_FILE in place.
+# Leaves every other line in the file exactly as it was.
+upsert_env() {
+    local key="$1" value="$2" tmp
+    tmp="$(mktemp)"
+    if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
+        awk -F'=' -v k="$key" -v v="$value" '$1==k { $0 = k"="v } { print }' "$ENV_FILE" > "$tmp"
+    else
+        cat "$ENV_FILE" > "$tmp" 2>/dev/null || true
+        printf '%s=%s\n' "$key" "$value" >> "$tmp"
+    fi
+    mv "$tmp" "$ENV_FILE"
+}
 
-# Memory settings (Maximum Efficiency)
-MC_INIT_MEMORY=256M
-MC_MAX_MEMORY=1280M
-MC_VIEW_DISTANCE=4
-MC_SIMULATION_DISTANCE=3
-MC_MAX_PLAYERS=6
-EOF
+touch "$ENV_FILE"
+
+echo -e "${GREEN}[AUTO-CONFIG]${NC} Updating Java image, version, and JVM flags in .env..."
+upsert_env "MC_IMAGE_TAG" "$JAVA_VERSION"
+upsert_env "MC_VERSION" "$MC_VERSION"
+upsert_env "MC_JVM_OPTS" "$JVM_OPTS"
+
+# Seed sensible memory/perf defaults only if they're not already set —
+# never overwrites values you've tuned yourself, unless --reset-memory is passed.
+if ! grep -q "^MC_INIT_MEMORY=" "$ENV_FILE" 2>/dev/null || [ "$RESET_MEMORY" = "--reset-memory" ]; then
+    echo -e "${GREEN}[AUTO-CONFIG]${NC} Setting memory/performance defaults..."
+    upsert_env "MC_INIT_MEMORY" "256M"
+    upsert_env "MC_MAX_MEMORY" "1280M"
+    upsert_env "MC_VIEW_DISTANCE" "4"
+    upsert_env "MC_SIMULATION_DISTANCE" "3"
+    upsert_env "MC_MAX_PLAYERS" "6"
 fi
 
 echo -e "${GREEN}[SUCCESS]${NC} Configuration complete!"
@@ -116,9 +101,14 @@ echo ""
 echo -e "Configuration summary:"
 echo -e "  Minecraft Version: ${YELLOW}${MC_VERSION}${NC}"
 echo -e "  Java Version:      ${YELLOW}${JAVA_VERSION}${NC}"
-echo -e "  Plugins:           ViaVersion, Backuper, Minefetch, LuckPerms, Spark"
+echo ""
+echo -e "Plugins aren't touched by this script — manage MC_MODRINTH_PROJECTS"
+echo -e "and MC_SPIGET_RESOURCES directly in .env."
 echo ""
 echo -e "To use a different Minecraft version, run:"
 echo -e "  ${YELLOW}MC_VERSION=1.20.4 $0${NC}"
+echo ""
+echo -e "To reset memory/perf settings back to defaults, run:"
+echo -e "  ${YELLOW}$0 --reset-memory${NC}"
 echo ""
 echo -e "Configuration saved to: ${ENV_FILE}"

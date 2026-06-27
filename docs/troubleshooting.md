@@ -35,7 +35,7 @@ If the agent prints a claim URL, your secret has expired or was never set. Re-cl
 1. Open the URL in the logs
 2. Reconfigure the tunnel in the playit dashboard
 3. Update `PLAYIT_SECRET` in `.env`
-4. `docker compose restart playit`
+4. `docker compose up -d playit` (a plain `restart` won't pick up the new secret — the container needs recreating)
 
 ## Plugins failing
 
@@ -45,8 +45,9 @@ Check server logs for compatibility errors:
 docker compose logs mc | grep -i "error\|warn\|plugin"
 ```
 
-- Ensure the plugin version supports your `MC_VERSION`
-- Re-run `auto_configure.sh` to reset to known-compatible versions
+- Ensure a build exists for your `MC_VERSION` on the project's Modrinth page (or SpigotMC page, for `MC_SPIGET_RESOURCES` entries)
+- Mark non-critical entries in `MC_MODRINTH_PROJECTS` as optional with a `?` suffix (e.g. `bluemap?`) so a missing build logs a warning instead of failing startup
+- `scripts/auto_configure.sh` only manages the Java image, `MC_VERSION`, and JVM flags — it won't reset or fix plugin versions; edit `MC_MODRINTH_PROJECTS` / `MC_SPIGET_RESOURCES` in `.env` directly
 
 ## Performance issues
 
