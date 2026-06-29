@@ -84,3 +84,14 @@ meeting-hidden.gl.at.ply.gg:61768
 ```
 
 Bedrock players connect with this address. `broadcast-port` in Geyser's `config.yml` should be set to `61768` to match. If the tunnel is ever recreated, the address changes and this needs updating.
+
+### Linking accounts
+
+Because the server uses a whitelist (Java UUIDs), Bedrock players must link their Bedrock and Java accounts so Floodgate can authorise them.
+
+1. Have the player join the server once via **Java Edition** (their Java UUID must be in `MC_WHITELIST`).
+2. In-game, run `/linkaccount` — a linking code is printed in chat.
+3. Have them join again, this time via **Bedrock Edition**, and run `/linkaccount <code>`.
+4. Done. Floodgate remembers the link and lets them in on future Bedrock connections.
+
+Bedrock players appear with a `.` prefix on their username (e.g. `.Steve`) to avoid name collisions with Java players.

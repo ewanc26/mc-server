@@ -89,6 +89,10 @@ Or manage in-game via RCON:
 docker compose exec mc rcon-cli
 ```
 
+### 6. (Optional) Set up Bedrock access
+
+See the [playit.gg Tunnel Setup](./docs/playit.md#bedrock-geyser-tunnel) doc for Bedrock tunnel configuration and account-linking instructions.
+
 ## Scripts
 
 Utility scripts live in `scripts/`.

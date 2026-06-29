@@ -64,7 +64,11 @@ docker compose up -d playit
 
 Your server address is shown in the playit dashboard. Share it with whitelisted players.
 
-### 6. (Optional) Run the setup script
+### 6. (Optional) Set up Bedrock access
+
+See the [playit.gg Tunnel Setup](./docs/playit.md#bedrock-geyser-tunnel) doc for Bedrock tunnel configuration and account-linking instructions.
+
+### 7. (Optional) Run the setup script
 
 For a guided setup including optimisation prompts, neofetch installation, and alias configuration:
 
