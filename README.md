@@ -8,7 +8,7 @@ A Dockerised PaperMC server configured for small groups, with tunnelled public a
 * [Features](./docs/features.md)
 * [System Requirements](./docs/system-requirements.md)
 * [Getting Started](#getting-started)
-* [playit.gg Tunnel Setup](./docs/duckdns.md)
+* [playit.gg Tunnel Setup](./docs/playit.md)
 * [Usage](./docs/usage.md)
 * [Maintenance](./docs/maintenance.md)
 * [Troubleshooting](./docs/troubleshooting.md)

@@ -55,3 +55,32 @@ If the agent can't connect, re-run the first-time setup flow:
 ## Custom domain
 
 playit.gg supports custom domains on paid plans. Configure these in the playit dashboard — no changes needed in `.env` or `compose.yml`.
+
+## Bedrock (Geyser) tunnel
+
+Bedrock Edition players need a second, separate tunnel — playit's **Minecraft Bedrock** type, which is UDP rather than Java's TCP. This needs Geyser/Floodgate installed via `MC_PLUGINS` in `.env` (see `.env.example`) and port `19132/udp` exposed, which `compose.yml` already handles through `MC_BEDROCK_PORT`.
+
+### Setup
+
+1. In the playit dashboard, add a tunnel with these settings:
+   - **Type:** Minecraft Bedrock
+   - **Local address:** `mc:19132`
+   - **Proxy Protocol:** proxy-protocol-v2
+2. On the host, open Geyser's config (`<data-dir>/plugins/Geyser-Spigot/config.yml`) and under `advanced: bedrock:`, set:
+   ```yaml
+   use-haproxy-protocol: true
+   broadcast-port: <tunnel port>
+   ```
+   This lives in the data volume, outside this repo, so it has to be edited directly on the host.
+3. Apply the plugin and port changes:
+   ```bash
+   docker compose up -d mc
+   ```
+
+### Current tunnel
+
+```
+meeting-hidden.gl.at.ply.gg:61768
+```
+
+Bedrock players connect with this address. `broadcast-port` in Geyser's `config.yml` should be set to `61768` to match. If the tunnel is ever recreated, the address changes and this needs updating.

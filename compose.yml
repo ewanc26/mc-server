@@ -22,6 +22,7 @@ services:
       - "127.0.0.1:${MC_SERVER_PORT:-25565}:25565"
       - "127.0.0.1:${MC_RCON_PORT:-25575}:25575"
       - "127.0.0.1:${MC_VOICE_PORT:-24454}:24454/udp"
+      - "127.0.0.1:${MC_BEDROCK_PORT:-19132}:19132/udp"
     
     # Optimized memory limits (6GB)
     deploy:
@@ -66,7 +67,7 @@ services:
       
       # Player Management
       MAX_PLAYERS: "${MC_MAX_PLAYERS:-6}"
-      PLAYER_IDLE_TIMEOUT: "${MC_IDLE_TIMEOUT:-0}"
+      PLAYER_IDLE_TIMEOUT: "${MC_IDLE_TIMEOUT:-5}"
       ENABLE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
       ENFORCE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
       WHITELIST: "${MC_WHITELIST:-424cd779-3028-42b2-bbe0-9d140ded1e7e,252bd633-504d-439b-8a5a-d99283f4b5a9,aed95856-af9d-4973-8c62-e6ee98cef7f5}"
@@ -113,7 +114,8 @@ services:
       ENFORCE_SECURE_PROFILE: "${MC_ENFORCE_SECURE_PROFILE:-false}"
       
       # Plugins
-      PLUGINS: ""
+      # Geyser/Floodgate URLs go via MC_PLUGINS (see .env.example) for Bedrock support
+      PLUGINS: "${MC_PLUGINS:-}"
       
       # Modrinth projects — auto-resolves the correct build for the running loader
       MODRINTH_PROJECTS: "${MC_MODRINTH_PROJECTS:-luckperms,simple-voice-chat,better-veinminer,treetimber,viaversion,viabackwards,chunky,axgraves}"
