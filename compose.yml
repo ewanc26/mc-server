@@ -119,6 +119,9 @@ services:
       
       # Modrinth projects — auto-resolves the correct build for the running loader
       MODRINTH_PROJECTS: "${MC_MODRINTH_PROJECTS:-luckperms,simple-voice-chat,better-veinminer,treetimber,viaversion,viabackwards,chunky,axgraves}"
+      # Override version string for Modrinth lookups (needed when VERSION uses Paper's
+      # new numbering like 26.1.2 instead of the old 1.21.x format Modrinth expects)
+      MODRINTH_VERSION: "${MC_MODRINTH_VERSION:-}"
       
       # Spiget Resources
       SPIGET_RESOURCES: "${MC_SPIGET_RESOURCES:-1997}"
