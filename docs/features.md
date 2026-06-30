@@ -7,4 +7,5 @@
 - **Persistent data:** World data, plugins, and configs stored at `/Volumes/Storage/Server/MC/data`. Backups at `/Volumes/Storage/Server/MC/backups`.
 - **Public access via playit.gg:** Tunnelled connection with no port forwarding or router configuration required.
 - **Automatic backups:** Managed by the `mc-backup` sidecar container (via RCON) — runs every 6h with 7-day retention.
+- **Origins:** Origins-Reborn plugin with all 4 expansion addons (Mobs, Monsters, Fantasy, Magic) — players pick a unique origin with special abilities on first join.
 - **Performance plugins:** Spark for profiling, Minefetch for in-game system stats.
