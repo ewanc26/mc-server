@@ -46,6 +46,7 @@ docker compose logs mc | grep -i "error\|warn\|plugin"
 ```
 
 - Ensure a build exists for your `MC_VERSION` on the project's Modrinth page (or SpigotMC page, for `MC_SPIGET_RESOURCES` entries)
+- Keep the Java server version within Geyser's officially supported range when Bedrock support is enabled
 - Mark non-critical entries in `MC_MODRINTH_PROJECTS` as optional with a `?` suffix (e.g. `bluemap?`) so a missing build logs a warning instead of failing startup
 - `scripts/auto_configure.sh` only manages the Java image, `MC_VERSION`, and JVM flags — it won't reset or fix plugin versions; edit `MC_MODRINTH_PROJECTS` / `MC_SPIGET_RESOURCES` in `.env` directly
 

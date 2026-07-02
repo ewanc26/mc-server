@@ -11,7 +11,7 @@
 services:
   mc:
     # Optimized for arm64
-    image: ${MC_IMAGE:-itzg/minecraft-server:java25}
+    image: ${MC_IMAGE:-itzg/minecraft-server:${MC_IMAGE_TAG:-java25}}
     container_name: ${MC_CONTAINER_NAME:-mc}
     tty: true
     stdin_open: true
@@ -23,6 +23,7 @@ services:
       - "127.0.0.1:${MC_RCON_PORT:-25575}:25575"
       - "127.0.0.1:${MC_VOICE_PORT:-24454}:24454/udp"
       - "127.0.0.1:${MC_BEDROCK_PORT:-19132}:19132/udp"
+      - "127.0.0.1:${MC_CHRONICLER_WEB_PORT:-8080}:8080"
     
     # Optimized memory limits (6GB)
     deploy:
@@ -42,7 +43,7 @@ services:
       EULA: "${MC_EULA:-TRUE}"
       TYPE: "${MC_TYPE:-PAPER}"
       # Minecraft version (auto-configured by setup script)
-      VERSION: "${MC_VERSION:-26.1}"
+      VERSION: "${MC_VERSION:-26.1.2}"
       
       # Dynamic Memory Configuration
       INIT_MEMORY: "${MC_INIT_MEMORY:-256M}"
@@ -289,7 +290,7 @@ services:
     labels:
       - "com.minecraft.server=true"
       - "com.minecraft.type=${MC_TYPE:-PAPER}"
-      - "com.minecraft.version=${MC_VERSION:-26.1}"
+      - "com.minecraft.version=${MC_VERSION:-26.1.2}"
       - "com.minecraft.optimization=${MC_OPTIMIZATION_TIER:-auto}"
 
   backups:
@@ -307,7 +308,7 @@ services:
       PLAYERS_ONLINE_CHECK_INTERVAL: "${MC_BACKUP_PLAYERS_CHECK_INTERVAL:-5m}"
       RCON_HOST: mc
       RCON_PORT: "25575"
-      RCON_PASSWORD: "${MC_RCON_PASSWORD:-r+VeDQzfYBhiUfVhVK8DNoK9}"
+      RCON_PASSWORD: "${MC_RCON_PASSWORD:?Set MC_RCON_PASSWORD in .env}"
     volumes:
       - "${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}:/data:ro"
       - "${MC_BACKUP_DIR:-/Volumes/Storage/Server/MC/backups}:/backups"

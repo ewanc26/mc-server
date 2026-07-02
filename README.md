@@ -38,13 +38,13 @@ cp .env.example .env
 
 Open `.env` and set at minimum:
 
-* `MC_VERSION` — Minecraft version to run (e.g. `1.21.1`)
+* `MC_VERSION` — Minecraft version to run (currently pinned to `26.1.2` for Geyser compatibility)
 * `PLAYIT_SECRET` — leave blank for now; see step 4
 
 Then run the auto-configuration script to select the correct Java image and JVM flags (plugins are managed separately, via `MC_MODRINTH_PROJECTS` / `MC_SPIGET_RESOURCES` in `.env`):
 
 ```bash
-MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+MC_VERSION=26.1.2 ./scripts/auto_configure.sh
 ```
 
 ### 3. Start the server
@@ -106,7 +106,7 @@ Utility scripts live in `scripts/`.
 **`auto_configure.sh`** — selects the correct Java image and JVM flags for a given Minecraft version.
 
 ```bash
-MC_VERSION=1.21.1 ./scripts/auto_configure.sh
+MC_VERSION=26.1.2 ./scripts/auto_configure.sh
 ```
 
 **`server_status_mac.sh` / `server_status_linux.sh`** — start, stop, and check server status. `setup_master.sh` can configure an `mcserver` alias for these.
