@@ -11,7 +11,8 @@ echo "========================================="
 echo ""
 
 SYSINFO_DIR="${MC_SYSINFO_DIR:-/Volumes/Storage/Server/MC/sysinfo}"
-SYSINFO_CONFIG="${MC_SYSINFO_CONFIG:-/Volumes/Storage/Developer/Git/minefetch/scripts/fastfetch-config.jsonc}"
+MINEFETCH_DIR="${MC_MINEFETCH_DIR:-/Volumes/Storage/Developer/Git/minefetch}"
+SYSINFO_CONFIG="${MC_SYSINFO_CONFIG:-$MINEFETCH_DIR/scripts/fastfetch-config.jsonc}"
 
 # Detect operating system
 detect_os() {
@@ -75,7 +76,7 @@ install_fastfetch_yum() {
 start_watcher() {
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local watcher="/Volumes/Storage/Developer/Git/minefetch/scripts/sysinfo-watcher.sh"
+    local watcher="$MINEFETCH_DIR/scripts/sysinfo-watcher.sh"
     local pid
 
     mkdir -p "$SYSINFO_DIR"

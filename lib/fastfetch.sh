@@ -3,9 +3,10 @@
 # sysinfo watcher so the /minefetch in-game command shows fresh host data.
 # Requires: shared.sh
 
-SYSINFO_WATCHER="/Volumes/Storage/Developer/Git/minefetch/scripts/sysinfo-watcher.sh"
+MINEFETCH_DIR="${MC_MINEFETCH_DIR:-/Volumes/Storage/Developer/Git/minefetch}"
+SYSINFO_WATCHER="$MINEFETCH_DIR/scripts/sysinfo-watcher.sh"
 SYSINFO_DIR="${MC_SYSINFO_DIR:-/Volumes/Storage/Server/MC/sysinfo}"
-SYSINFO_CONFIG="${MC_SYSINFO_CONFIG:-/Volumes/Storage/Developer/Git/minefetch/scripts/fastfetch-config.jsonc}"
+SYSINFO_CONFIG="${MC_SYSINFO_CONFIG:-$MINEFETCH_DIR/scripts/fastfetch-config.jsonc}"
 
 setup_fastfetch() {
     print_header "Setting up fastfetch + sysinfo watcher for Minefetch"
