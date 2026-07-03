@@ -8,5 +8,5 @@
 - **Public access via playit.gg:** Tunnelled connection with no port forwarding or router configuration required.
 - **Automatic backups:** Managed by the `mc-backup` sidecar container (via RCON) — runs every 6h with 7-day retention.
 - **Origins:** Origins-Reborn plugin with all 4 expansion addons (Mobs, Monsters, Fantasy, Magic) — players pick a unique origin with special abilities on first join.
-- **System info:** `/minefetch` displays container system stats (powered by Minefetch + fastfetch).
+- **System info:** `/minefetch` displays host (macOS) and container (Paper) stats — powered by fastfetch + Minefetch plugin.
 - **Performance plugins:** Spark and CoreProtect are listed but not yet compatible with Paper 26.x.

@@ -277,6 +277,7 @@ services:
     volumes:
       - "${MC_DATA_DIR:-/Volumes/Storage/Server/MC/data}:/data"
       - "${MC_BACKUP_DIR:-/Volumes/Storage/Server/MC/backups}:/backups"
+      - "${MC_SYSINFO_DIR:-/Volumes/Storage/Server/MC/sysinfo}:/sysinfo"
     
     # Health check
     healthcheck:

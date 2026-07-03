@@ -11,7 +11,7 @@ source "$SERVER_DIR/lib/shared.sh"
 # Source optional lib modules
 source "$SERVER_DIR/lib/docker.sh"
 source "$SERVER_DIR/lib/backup.sh"
-source "$SERVER_DIR/lib/neofetch.sh"
+source "$SERVER_DIR/lib/fastfetch.sh"
 source "$SERVER_DIR/lib/post_install.sh"
 source "$SERVER_DIR/lib/aliases.sh"
 
@@ -338,17 +338,15 @@ main() {
     fi
     echo ""
 
-    # Neofetch for Minefetch plugin
-    if docker ps --format '{{.Names}}' | grep -q "^mc$"; then
-        read -p "Install neofetch for the Minefetch plugin? (Y/n): " install_neo_choice
-        if [[ ! "$install_neo_choice" =~ ^[Nn]$ ]]; then
-            install_neofetch
-        else
-            print_info "Skipping neofetch."
-            print_warning "Minefetch won't work without it."
-        fi
-        echo ""
+    # fastfetch + sysinfo watcher for Minefetch plugin
+    read -p "Set up fastfetch + sysinfo watcher for Minefetch? (Y/n): " setup_fastfetch_choice
+    if [[ ! "$setup_fastfetch_choice" =~ ^[Nn]$ ]]; then
+        setup_fastfetch
+    else
+        print_info "Skipping fastfetch setup."
+        print_warning "Minefetch won't work without it."
     fi
+    echo ""
 
     # Aliases
     read -p "Set up shell aliases? (Y/n): " setup_aliases_choice

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Cross-Platform Minefetch Setup Script
 # Works on Linux (apt/yum/dnf) and macOS (Homebrew)
-# Automatically detects OS and installs neofetch
+# Automatically detects OS and installs fastfetch + sysinfo watcher
 
 set -e
 
@@ -9,6 +9,8 @@ echo "========================================="
 echo "Minefetch Setup - Cross-Platform Edition"
 echo "========================================="
 echo ""
+
+SYSINFO_DIR="${MC_SYSINFO_DIR:-/Volumes/Storage/Server/MC/sysinfo}"
 
 # Detect operating system
 detect_os() {
@@ -35,110 +37,127 @@ detect_linux_distro() {
     fi
 }
 
-# Install neofetch on Debian/Ubuntu (apt-get)
-install_neofetch_apt() {
-    echo "📦 Installing neofetch using apt-get..."
-    apt-get update -qq
-    apt-get install -y neofetch > /dev/null 2>&1
-}
-
-# Install neofetch on RHEL/CentOS/Fedora (yum/dnf)
-install_neofetch_yum() {
-    echo "📦 Installing neofetch using yum/dnf..."
-    if command -v dnf &> /dev/null; then
-        dnf install -y neofetch > /dev/null 2>&1
-    else
-        yum install -y neofetch > /dev/null 2>&1
-    fi
-}
-
-# Install neofetch on macOS (Homebrew)
-install_neofetch_brew() {
-    echo "📦 Installing neofetch using Homebrew..."
-    
-    # Check if Homebrew is installed
+# Install fastfetch on macOS (Homebrew)
+install_fastfetch_brew() {
+    echo "Installing fastfetch using Homebrew..."
     if ! command -v brew &> /dev/null; then
-        echo "❌ Homebrew not found. Installing Homebrew first..."
+        echo "Homebrew not found. Installing Homebrew first..."
         echo "This may take a few minutes..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Add Homebrew to PATH for this session
         if [[ -f "/opt/homebrew/bin/brew" ]]; then
             eval "$(/opt/homebrew/bin/brew shellenv)"
         elif [[ -f "/usr/local/bin/brew" ]]; then
             eval "$(/usr/local/bin/brew shellenv)"
         fi
     fi
-    
-    # Install neofetch
-    brew install neofetch
+    brew install fastfetch
+}
+
+# Install fastfetch on Debian/Ubuntu
+install_fastfetch_apt() {
+    echo "Installing fastfetch using apt-get..."
+    sudo apt-get update -qq
+    sudo apt-get install -y fastfetch
+}
+
+# Install fastfetch on Fedora/RHEL
+install_fastfetch_yum() {
+    echo "Installing fastfetch using yum/dnf..."
+    if command -v dnf &> /dev/null; then
+        sudo dnf install -y fastfetch
+    else
+        sudo yum install -y fastfetch
+    fi
+}
+
+# Start the sysinfo watcher
+start_watcher() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local watcher="$script_dir/sysinfo-watcher.sh"
+    local pid
+
+    mkdir -p "$SYSINFO_DIR"
+
+    pid=$(pgrep -f "sysinfo-watcher.sh" 2>/dev/null || true)
+    if [ -n "$pid" ]; then
+        echo "Sysinfo watcher already running (PID $pid)"
+    else
+        echo "Starting sysinfo watcher in background..."
+        nohup bash "$watcher" "$SYSINFO_DIR" > /tmp/sysinfo-watcher.log 2>&1 &
+        local new_pid=$!
+        disown "$new_pid"
+        echo "Sysinfo watcher started (PID $new_pid)"
+    fi
 }
 
 # Main installation logic
 OS=$(detect_os)
-
-echo "🔍 Detected OS: $OS"
+echo "Detected OS: $OS"
 echo ""
 
 case "$OS" in
     linux)
-        # Running on Linux
         DISTRO=$(detect_linux_distro)
-        echo "🐧 Linux Distribution: $DISTRO"
+        echo "Linux Distribution: $DISTRO"
         echo ""
-        
         case "$DISTRO" in
             ubuntu|debian)
-                install_neofetch_apt
+                install_fastfetch_apt
                 ;;
             fedora|rhel|centos|rocky|almalinux)
-                install_neofetch_yum
+                install_fastfetch_yum
                 ;;
             *)
-                echo "❌ Unsupported Linux distribution: $DISTRO"
-                echo "Please install neofetch manually:"
-                echo "  Ubuntu/Debian: apt-get install neofetch"
-                echo "  Fedora/RHEL: dnf install neofetch"
+                echo "Unsupported Linux distribution: $DISTRO"
+                echo "Please install fastfetch manually:"
+                echo "  Ubuntu/Debian: sudo apt-get install fastfetch"
+                echo "  Fedora/RHEL: sudo dnf install fastfetch"
                 exit 1
                 ;;
         esac
         ;;
-        
     macos)
-        # Running on macOS
-        echo "🍎 macOS detected"
+        echo "macOS detected"
         echo ""
-        install_neofetch_brew
+        install_fastfetch_brew
         ;;
-        
     *)
-        echo "❌ Unsupported operating system: $OSTYPE"
+        echo "Unsupported operating system: $OSTYPE"
         echo "This script supports Linux and macOS only."
         exit 1
         ;;
 esac
 
-# Verify installation
+# Verify fastfetch
 echo ""
-echo "✅ Verifying neofetch installation..."
-if command -v neofetch &> /dev/null; then
-    NEOFETCH_VERSION=$(neofetch --version 2>&1 | head -1)
-    echo "✓ Neofetch installed successfully: $NEOFETCH_VERSION"
-    echo ""
-    echo "========================================="
-    echo "✨ Minefetch setup complete!"
-    echo "========================================="
-    echo ""
-    echo "Players can now use these commands:"
-    echo "  /minefetch  - Display system information"
-    echo "  /loadfetch  - Display CPU/RAM usage graphs"
-    echo ""
-    echo "Testing neofetch output:"
-    echo "========================================="
-    neofetch --off --stdout | head -10
-    echo "========================================="
+echo "Verifying fastfetch installation..."
+if command -v fastfetch &> /dev/null; then
+    FF_VERSION=$(fastfetch --version 2>&1 | head -1)
+    echo "fastfetch installed: $FF_VERSION"
 else
-    echo "❌ Failed to install neofetch"
-    echo "Please install manually and try again"
+    echo "Failed to install fastfetch"
     exit 1
 fi
+
+# Generate initial host.json
+echo ""
+echo "Generating initial host.json..."
+mkdir -p "$SYSINFO_DIR"
+fastfetch --format json > "$SYSINFO_DIR/host.json.tmp"
+mv "$SYSINFO_DIR/host.json.tmp" "$SYSINFO_DIR/host.json"
+echo "Written to $SYSINFO_DIR/host.json"
+
+# Start watcher
+start_watcher
+
+echo ""
+echo "========================================="
+echo "Minefetch setup complete!"
+echo "========================================="
+echo ""
+echo "Players can now use:"
+echo "  /minefetch  - Display fresh host + server info"
+echo ""
+echo "The sysinfo watcher polls for .refresh triggers"
+echo "from the plugin so data is fetched on demand."

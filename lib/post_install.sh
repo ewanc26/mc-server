@@ -30,13 +30,13 @@ run_post_install_tests() {
         print_error "✗ Could not read memory usage"
     fi
 
-    # Test 3: Neofetch
-    print_info "Test 3/$tests_total: Neofetch"
-    if docker exec mc bash -c "command -v neofetch" &> /dev/null; then
-        print_success "✓ Neofetch is installed"
+    # Test 3: Sysinfo mount
+    print_info "Test 3/$tests_total: Sysinfo mount"
+    if docker exec mc bash -c "test -f /sysinfo/host.json" &> /dev/null; then
+        print_success "✓ /sysinfo/host.json is mounted"
         ((tests_passed++))
     else
-        print_warning "✗ Neofetch not installed — Minefetch won't work"
+        print_warning "✗ /sysinfo/host.json not found — check MC_SYSINFO_DIR mount"
     fi
 
     # Test 4: playit agent
