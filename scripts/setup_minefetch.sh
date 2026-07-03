@@ -11,6 +11,7 @@ echo "========================================="
 echo ""
 
 SYSINFO_DIR="${MC_SYSINFO_DIR:-/Volumes/Storage/Server/MC/sysinfo}"
+SYSINFO_CONFIG="${MC_SYSINFO_CONFIG:-/Volumes/Storage/Developer/Git/minefetch/scripts/fastfetch-config.jsonc}"
 
 # Detect operating system
 detect_os() {
@@ -74,7 +75,7 @@ install_fastfetch_yum() {
 start_watcher() {
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local watcher="$script_dir/sysinfo-watcher.sh"
+    local watcher="/Volumes/Storage/Developer/Git/minefetch/scripts/sysinfo-watcher.sh"
     local pid
 
     mkdir -p "$SYSINFO_DIR"
@@ -144,7 +145,7 @@ fi
 echo ""
 echo "Generating initial host.json..."
 mkdir -p "$SYSINFO_DIR"
-fastfetch --format json > "$SYSINFO_DIR/host.json.tmp"
+fastfetch --config "$SYSINFO_CONFIG" --format json > "$SYSINFO_DIR/host.json.tmp"
 mv "$SYSINFO_DIR/host.json.tmp" "$SYSINFO_DIR/host.json"
 echo "Written to $SYSINFO_DIR/host.json"
 
