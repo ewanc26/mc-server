@@ -25,14 +25,14 @@ services:
       - "127.0.0.1:${MC_BEDROCK_PORT:-19132}:19132/udp"
       - "127.0.0.1:${MC_CHRONICLER_WEB_PORT:-8080}:8080"
     
-    # Optimized memory limits (6GB)
+    # Optimized memory limits (4GB cap; ~1.7GB idle, headroom for chunk gen)
     deploy:
       resources:
         limits:
-          cpus: '${MC_CPU_LIMIT:-2.0}'
-          memory: 6G
+          cpus: '${MC_CPU_LIMIT:-6.0}'
+          memory: 4G
         reservations:
-          cpus: '${MC_CPU_RESERVE:-0.5}'
+          cpus: '${MC_CPU_RESERVE:-2.0}'
           memory: 2G
     
     environment:
@@ -70,7 +70,7 @@ services:
       MAX_PLAYERS: "${MC_MAX_PLAYERS:-6}"
       PLAYER_IDLE_TIMEOUT: "${MC_IDLE_TIMEOUT:-5}"
       ENABLE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
-      ENFORCE_WHITELIST: "${MC_ENABLE_WHITELIST:-true}"
+      ENFORCE_WHITELIST: "${MC_ENFORCE_WHITELIST:-${MC_ENABLE_WHITELIST:-true}}"
       WHITELIST: "${MC_WHITELIST:-424cd779-3028-42b2-bbe0-9d140ded1e7e,252bd633-504d-439b-8a5a-d99283f4b5a9,aed95856-af9d-4973-8c62-e6ee98cef7f5}"
       OPS: "${MC_OPS:-252bd633-504d-439b-8a5a-d99283f4b5a9,424cd779-3028-42b2-bbe0-9d140ded1e7e,aed95856-af9d-4973-8c62-e6ee98cef7f5}"
       
