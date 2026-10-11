@@ -36,8 +36,12 @@ version_lt() {
     ! version_ge "$1" "$2"
 }
 
-# Determine optimal Java version
-if version_lt "$MC_VERSION" "1.12"; then
+# Determine optimal Java version.
+# Minecraft switched to year-based versioning with 26.1, which requires Java 25.
+if version_ge "$MC_VERSION" "26.1"; then
+    JAVA_VERSION="java25"
+    echo -e "${YELLOW}[INFO]${NC} Minecraft 26.1+ detected → Using Java 25 (LTS)"
+elif version_lt "$MC_VERSION" "1.12"; then
     JAVA_VERSION="java8"
     echo -e "${YELLOW}[INFO]${NC} Minecraft < 1.12 detected → Using Java 8"
 elif version_lt "$MC_VERSION" "1.17"; then
@@ -54,7 +58,7 @@ elif version_lt "$MC_VERSION" "1.22"; then
     echo -e "${YELLOW}[INFO]${NC} Minecraft 1.20.5-1.21.x detected → Using Java 21 (LTS)"
 else
     JAVA_VERSION="java21"
-    echo -e "${YELLOW}[INFO]${NC} Minecraft 1.22+ detected → Using Java 21 (LTS)"
+    echo -e "${YELLOW}[INFO]${NC} Unknown newer Minecraft version; defaulting to Java 21 pending a verified requirement"
 fi
 
 # JVM flags (Aikar's, with the legacy biased-locking flag only on older Java)
