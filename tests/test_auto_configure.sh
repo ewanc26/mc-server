@@ -18,6 +18,11 @@ assert_java_image() {
         cat "$TMP_DIR/.env" >&2
         exit 1
     fi
+    if [[ "$expected" == "java25" ]] && grep -q -- "-XX:-UseBiasedLocking" "$TMP_DIR/.env"; then
+        echo "Java 25 must not receive the removed UseBiasedLocking option" >&2
+        cat "$TMP_DIR/.env" >&2
+        exit 1
+    fi
 }
 
 assert_java_image "1.20.4" "java17"
