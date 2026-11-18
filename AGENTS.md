@@ -4,7 +4,7 @@ Guidance for AI coding agents working in **mc-server**.
 
 ## Project overview
 
-my customised minecraft server configuration
+My customised minecraft server configuration
 
 - Language: Shell
 - Default branch: main
