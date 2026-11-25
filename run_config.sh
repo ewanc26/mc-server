@@ -1,3 +1,4 @@
+#!/bin/bash
 if ! command -v brew > /dev/null 2>&1; then
   echo "Homebrew is not installed. Please install it with: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
   # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
